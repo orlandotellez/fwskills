@@ -1,0 +1,236 @@
+---
+name: neo-brutalist
+description: "Design and build websites and web apps in the \"Neo-Brutalist\" style — bold saturated colors, thick black borders, hard offset shadows with zero blur, raw exposed grids, chunky display typography, and visible structure. Loud, confident,"
+category: design
+version: 1.0.0
+author: "orlandotellez"
+tags: [brutalista, contraste, osado]
+compatibility: ["opencode", "agents", "pi", "claude"]
+featured: false
+---
+# Neo-Brutalist Design Skill
+
+## Coverage Contract — the ENTIRE app
+
+Neo-Brutalist is a **full-application design system**, not a section style.
+When the user asks for it — "hacelo brutalista", "use the neo-brutalist
+skill", "brutalist design", or any of the description triggers — apply it to
+EVERYTHING: every route, every page, every component, both **public pages and
+private/administrative views** (dashboards, admin panels, auth flows, CRUD
+screens, settings). Partial application is a **DEFECT**: if any view does not
+follow this system, keep working until the whole app is consistent before
+declaring the task done. Never scope the style to the section you are currently
+editing — a design skill request always means the entire application.
+
+---
+
+## Step 1 — Clarify First
+
+Ask before writing code. Skip to defaults if user says so.
+
+1. **Base Accent**: Electric Yellow `#ffd60a` *(default)* · Hot Pink `#ff2e88` · Acid Green `#b6ff00` · Sky Blue `#00a8ff` · Custom hex
+2. **Background**: Off-white `#f5f3ef` *(default)* · Flat white `#ffffff` · Paper `#fdf6e3`
+3. **Border**: Black `#000000` *(default)* · Ink `#1a1a1a`
+4. **Type**: Landing page *(default)* · Web app · Portfolio · Editorial · Other
+5. **Sections** (default): Hero, Marquee, Features, Stats, Pricing, Testimonials, FAQ, CTA, Footer
+
+The accent is the **only brand input**. Custom accents must stay bold and
+saturated, and must keep ≥ 4.5:1 contrast against BLACK text (the style's
+default text-on-accent pairing) — darken the accent until it passes and SAY
+SO. All four default accents pass with black text.
+
+---
+
+## Step 2 — Tokens
+
+```css
+:root {
+  --ink:           #000000;
+  --bg-base:       #f5f3ef;   --bg-panel: #ffffff;
+  --accent:        #ffd60a;   --accent-2:  #ff2e88;
+  --accent-3:      #b6ff00;
+  --text-primary:  #000000;   --text-muted: #4a4a4a;
+  --border-w:      3px;       --border-color: var(--ink);
+  --shadow-hard:   6px 6px 0 0 var(--ink);
+  --shadow-hard-sm: 4px 4px 0 0 var(--ink);
+  --shadow-hard-lg: 8px 8px 0 0 var(--ink);
+  --font-display: 'Archivo Black', 'Anton', Impact, sans-serif;
+  --font-body: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --text-display: clamp(52px,8vw,110px);
+  --text-h2: clamp(34px,4.5vw,56px);
+  --text-h3: clamp(20px,2vw,26px);
+  --text-body: 16px; --text-sm: 14px; --text-label: 13px;
+  --r-none: 0px; --r-sm: 4px; --r-md: 8px;
+  --ease-out: cubic-bezier(0.16,1,0.3,1);
+  --dur-fast: 120ms; --dur-base: 200ms;
+}
+```
+
+---
+
+## Step 3 — The Rules (follow exactly)
+
+### ① The hard shadow is sacred — offset solid, ZERO blur
+```css
+.card, .btn { box-shadow:var(--shadow-hard); }
+.card:active, .btn:active { box-shadow:var(--shadow-hard-sm); transform:translate(2px,2px); }
+```
+- Shadow = solid color (black default), `Npx Npx 0 0`, no blur, no spread, no softness. This is the signature — never soften it.
+
+### ② Thick borders everywhere
+- Default border: `3px solid #000`. Cards, buttons, inputs, images, logo boxes.
+- On accent panels the border stays black. On the accent-filled button the border stays black. Black border is non-negotiable.
+
+### ③ Raw colors, full saturation, no gradients
+- Palette: one dominant accent + black + off-white. Accent fills are FLAT — no gradients, no transparency layers, no glow.
+- Rotate accent by section to keep energy: hero yellow, features pink, pricing green. Never more than one accent per section.
+- Text on ANY accent fill is black — never white text on accent (it fails AA on most saturated hues).
+
+### ④ Typography — chunky and loud
+```css
+.display { font-family:var(--font-display); font-size:var(--text-display);
+  text-transform:uppercase; line-height:0.95; letter-spacing:-0.02em; color:var(--ink); }
+.display .highlight { background:var(--accent); display:inline-block;
+  padding:0 8px; box-shadow:var(--shadow-hard-sm); }
+```
+- Display font: Archivo Black / Anton / Impact — heavy weights only (900 or the only weight the font ships).
+- Uppercase everywhere for headings. Underline words with the accent block (like highlighter) — not borders, not gradients.
+- Body: Space Grotesk 400–500. Mono for labels and metadata.
+
+### ⑤ Buttons — filled accent, black border, hard shadow
+```css
+.btn { display:inline-flex; align-items:center; gap:8px; padding:14px 26px;
+  font-family:var(--font-body); font-weight:700; font-size:15px; text-transform:uppercase;
+  background:var(--accent); color:var(--ink);
+  border:var(--border-w) solid var(--border-color); border-radius:var(--r-sm);
+  box-shadow:var(--shadow-hard); cursor:pointer;
+  transition:transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out); }
+.btn:hover { transform:translate(-2px,-2px); box-shadow:var(--shadow-hard-lg); }
+.btn:active { transform:translate(2px,2px); box-shadow:var(--shadow-hard-sm); }
+.btn-secondary { background:var(--bg-base); }
+.btn-black { background:var(--ink); color:var(--bg-base); }
+```
+
+### ⑥ Section labels — mono uppercase with slash
+```css
+.section-label { font-family:var(--font-mono); font-size:var(--text-label); font-weight:600;
+  text-transform:uppercase; letter-spacing:0.08em; color:var(--ink); margin-bottom:16px; }
+```
+- Format: `/// FEATURES` (triple slash prefix). Mono, black, uppercase — no bracketed `[FEATURES]`, no colored chips.
+
+### ⑦ Cards — exposed grid, numbered, hard edges
+```css
+.card { background:var(--bg-panel); border:var(--border-w) solid var(--ink);
+  border-radius:var(--r-md); box-shadow:var(--shadow-hard); padding:24px; position:relative; }
+.card .index { position:absolute; top:-14px; left:16px; font-family:var(--font-mono);
+  background:var(--accent); border:var(--border-w) solid var(--ink); padding:2px 8px; font-weight:700; }
+```
+- Every card gets structure: index badge `01`, `02`…, divider lines (1px black dashed or solid), explicit borders between elements. Brutalism shows its structure — no hidden elegance.
+
+### ⑧ Stats — huge typographic, rotated accent blocks
+- Numbers at 80–140px in display font, black. Behind them a rotated accent rectangle (`rotate(-2deg)`) or inline highlight block.
+- Grid with visible 3px borders between cells. Alternative: marquee strip of `NUMBER + LABEL` looping.
+- Stats must represent real data — never invent numbers for impact.
+
+### ⑨ Pricing — dead simple, no tiers games
+- 3 columns, same flat card. Featured = accent background + black text list. Checkmarks: literal `✓` in a black square, or black check SVG. Prices in display font at 64px+.
+
+### ⑩ Marquee strips — the energy layer
+```css
+.marquee { overflow:hidden; background:var(--ink); color:var(--bg-base);
+  border-top:var(--border-w) solid var(--ink); border-bottom:var(--border-w) solid var(--ink);
+  padding:12px 0; }
+.marquee .track { display:flex; gap:48px; width:max-content; animation:marquee 18s linear infinite;
+  font-family:var(--font-display); text-transform:uppercase; font-size:22px; }
+@keyframes marquee { to { transform:translateX(-50%); } }
+```
+- Black strips with uppercase display text scrolling at a fast clip. Used between sections as separators — this is the brutalist rhythm.
+- One marquee per viewport, maximum. Never stack two moving strips.
+- Pause on hover/focus (`animation-play-state:paused`) so the content is actually readable.
+
+---
+
+## Step 4 — Contrast & Accessibility (guardrails, non-negotiable)
+
+Loud does not mean unreadable. The style's safe pairings are fixed:
+
+- Black text on accent fills: ≥ 4.5:1 required (all 4 default accents pass: yellow ≈ 15:1, acid green ≈ 16:1, sky blue ≈ 8:1, hot pink ≈ 5.9:1).
+- NEVER white text on accent fills — it fails AA on hot pink (≈ 3.5:1) and every other saturated hue here.
+- `--text-muted` `#4a4a4a` on `--bg-base`/`--bg-panel` passes AA for body copy — do not lighten it further.
+- White-on-black surfaces (marquee, footer, `.btn-black`): body-size text passes; keep mono labels ≥ 13px.
+- Focus states: `outline: 3px solid var(--ink)` + 2px offset on light surfaces, or `outline: 3px solid var(--accent)` on black surfaces — the hard shadow is NOT a focus indicator.
+- Links inside body text: underline them (black underline) — color alone is not enough in this style.
+
+---
+
+## Step 5 — Animations (punchy, all required, with an off switch)
+
+- **Hover**: translate(-2px,-2px) + bigger hard shadow → click: squish `translate(2px,2px)` + smaller shadow. 120ms.
+- **Reveal**: `translateY(24px)` → 0 over 400ms easeOut — elements LAND with weight, they don't fade elegantly. No `steps()` easing (it reads as a glitch, not a slam).
+- **Marquee**: 18s linear, pause on hover/focus.
+- **Ticker**: If a live counter/ticker exists, mono numerals, black on accent chips.
+- **No** glows, no blurs, no smooth gradients, no glass, no parallax softness.
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation:none !important; transition:none !important; }
+  .reveal { opacity:1; transform:none; }
+  .marquee .track { animation:none; flex-wrap:wrap; justify-content:center; }
+}
+```
+- With reduced motion: marquee becomes a static wrapped strip, reveals shown, hover squish disabled. The design still reads 100% brutalist without a single animation — the borders and shadows carry it.
+
+---
+
+## Step 6 — Responsive & Performance
+
+Hard shadows stick OUT of their elements — on tight mobile grids they cause horizontal scroll. Budget them.
+
+- **Mobile**: drop shadow offset to 4px (`--shadow-hard-sm` as default), borders stay 3px (never thin them — the signature survives at all sizes).
+- Root safety net: `body { overflow-x: clip; }` — rotated accent blocks and offset shadows must never create horizontal scroll.
+- Display type: the `clamp()` token handles scale; check `line-height:0.95` doesn't clip uppercase descenders at mobile sizes — bump to 1.0 if needed.
+- Columns collapse 3→1; pricing stacks with featured first; index badges stay visible (reduce top offset to fit stacked spacing).
+- Marquee on mobile: slow to ~28s or swap to a static wrapped strip; one moving strip max.
+- Touch targets ≥ 44px — chunky buttons are naturally large, keep padding on small screens.
+- Performance: this style is cheap by nature — flat fills, no images required. Keep it that way: no blur, no canvas, no JS animation libraries.
+
+---
+
+## Step 7 — Content (loud design, honest words)
+
+Brutalist copy is blunt and concrete — that is the style's voice:
+
+- Say what the product does in plain, direct words. Short sentences are on-style.
+- No AI-slop phrases: "Unlock your potential", "Revolutionize your workflow", "Next-generation" — unless literally true and necessary.
+- No fake stats, no invented testimonials, no fake logos in the marquee.
+- The marquee carries real value props or real brand names — never filler words like `COOL ✦ AWESOME ✦ WOW`.
+
+---
+
+## Step 8 — Anti-Pattern Checklist
+
+- [ ] Soft/blurred shadows → **offset solid hard shadow `Npx Npx 0 0`, zero blur**
+- [ ] Thin hairline borders → **3px black minimum**
+- [ ] Gradients or glassmorphism (frosted panels) → **flat filled colors only**
+- [ ] Elegant serif or light weights → **chunky display font, uppercase, weight 900**
+- [ ] Rounded pill buttons (999px) → **max 8px radius; brutalism keeps the edge**
+- [ ] Subtle micro-animations → **weighty reveals, squish interactions, fast marquees**
+- [ ] Hidden/clean structure → **numbered cards, visible dividers, exposed grid**
+- [ ] A second color sneaking in per section → **one accent per section**
+- [ ] White text on accent fills → **black on accent, always (AA fails otherwise)**
+- [ ] `steps()` easing on reveals → **400ms easeOut with weight, not glitch**
+- [ ] Horizontal scroll from shadows/rotations → **overflow-x clip + 4px shadows on mobile**
+- [ ] Motion with no reduced-motion fallback → **static marquee strip, visible reveals**
+- [ ] AI-slop copy or fake metrics → **blunt, concrete, honest content only**
+
+---
+
+## Step 9 — Page Structure & Stack
+
+**Structure:** Nav (black bar, logo block, mono links, CTA) → Hero (display headline w/ highlight block, halo CTA pair, floating accent shapes) → Marquee strip → Features (3-col numbered cards) → Stats (huge numbers, rotated accent blocks) → Pricing (3-col flat, accent featured) → Testimonials (2-3 col hard-edge quotes) → FAQ (accordion with bold borders) → CTA (full accent block section) → Footer (black bar, white text, mono links)
+
+Adapt sections to the real product — never pad with empty sections.
+
+**React:** `lucide-react` for icons · Tailwind for layout only · tokens as CSS variables
+**HTML:** All tokens on `:root` · no framework needed
