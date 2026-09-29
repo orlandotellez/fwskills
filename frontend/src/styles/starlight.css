@@ -1,0 +1,136 @@
+/* =========================================================================
+   Starlight → fwskills token bridge
+   -------------------------------------------------------------------------
+   Maps Starlight's CSS custom properties onto the semantic tokens so
+   /docs/ reads as the same product. The bridge is a hard requirement of
+   ADR-04: without it, the docs site visibly diverges from the rest of the
+   site. If a new --sl-* variable appears in an upgrade, it lands here.
+
+   Starlight writes data-theme on <html> itself, which is incidentally the
+   same attribute our tokens are keyed on, so light/dark follows both toggles.
+   ========================================================================= */
+
+@import './tokens.css';
+@import './base.css';
+
+/* -------------------------------------------------------------- surfaces */
+.site-frame .header .site-nav,
+[data-sveltekit-preload-data] {
+}
+
+/* Colour bridge — every --sl-* that affects the chrome and typography. */
+:root,
+:root[data-theme='dark'],
+:root[data-theme='light'] {
+  /* Backgrounds */
+  --sl-color-bg: var(--base);
+  --sl-color-bg-nav: var(--base);
+  --sl-color-bg-sidebar: var(--surface);
+  --sl-color-bg-grad: color-mix(in srgb, var(--accent-soft) 40%, transparent);
+  --sl-color-bg-accent: var(--accent-soft);
+  --sl-color-bg-inline-code: var(--accent-soft);
+  --sl-color-bg-code: var(--code-bg);
+  --sl-color-bg-code-editor: var(--code-bg);
+
+  /* Text */
+  --sl-color-text: var(--text);
+  --sl-color-white: var(--text);
+  --sl-color-black: var(--base);
+  --sl-color-gray-1: var(--text);
+  --sl-color-gray-2: var(--text-secondary);
+  --sl-color-gray-3: var(--text-muted);
+  --sl-color-gray-4: var(--text-muted);
+  --sl-color-gray-5: var(--border-strong);
+  --sl-color-gray-6: var(--border);
+  --sl-color-text-accent: var(--accent);
+  --sl-color-text-invert: var(--on-accent);
+  --sl-color-hero-text: var(--text);
+
+  /* Accent */
+  --sl-color-accent: var(--accent);
+  --sl-color-accent-high: var(--accent-hover);
+  --sl-color-accent-low: var(--accent-soft);
+
+  /* Hairlines and frames */
+  --sl-color-hairline: var(--border);
+  --sl-color-hairline-shade: var(--border-strong);
+  --sl-color-menu-active-bg: var(--accent-soft);
+  --sl-color-box-shadow: transparent;
+
+  /* Banner (e.g. version notice) */
+  --sl-color-banner-text: var(--text);
+  --sl-color-banner-bg: var(--surface-elevated);
+  --sl-color-banner-glow: transparent;
+
+  /* Fonts — same stacks as the rest of the site. */
+  --sl-font: var(--font-body);
+  --sl-font-mono: var(--font-mono);
+  --sl-font-headings: var(--font-heading);
+
+  /* A11y: the accent ring must stay visible on every surface. */
+  --sl-focus-ring-offset: 2px;
+}
+
+/* The docs header gets the site's wordmark personality and a return link. */
+.site-title {
+  font-family: var(--font-heading);
+}
+
+/* Inline code inside docs matches the site's inline command treatment. */
+.prose :not(pre) > code {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 0.125em 0.375em;
+}
+
+/* Code block chrome: our surface, our border, our radius. */
+.expressive-code,
+.expressive-code .frame,
+.expressive-code .copy {
+  border-radius: var(--radius-md);
+}
+
+.expressive-code {
+  border-color: var(--border) !important;
+}
+
+/* Docs prose measure stays readable (760px). */
+.prose {
+  font-size: var(--text-body);
+}
+
+.prose h1 {
+  font-size: var(--text-h1);
+  line-height: 1.15;
+}
+.prose h2 {
+  font-size: var(--text-h3);
+}
+.prose h3 {
+  font-size: var(--text-h4);
+}
+
+/* Sidebar links: neutral until active, active uses the accent soft fill. */
+.sidebar-content a[aria-current='page'] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Links inherit the site accent. */
+.prose a {
+  color: var(--accent);
+}
+.prose a:hover {
+  color: var(--accent-hover);
+}
+
+/* The mobile TOC already aligns with the theme through the variables above. */
+
+@media (prefers-reduced-motion: reduce) {
+  .prose [data-popover],
+  .prose [data-has-popover] {
+    animation: none;
+  }
+}
