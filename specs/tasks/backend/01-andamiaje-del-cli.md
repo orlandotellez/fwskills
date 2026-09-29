@@ -2,7 +2,7 @@
 
 ## Estado Actual
 
-`packages/` no existe en el repositorio, y la raíz tampoco tiene `package.json`.
+`cli/` no existe en el repositorio, y la raíz tampoco tiene `package.json`.
 El único paquete del repositorio es `frontend/package.json`, que declara
 `"name": "fwskills"`, `"version": "1.0.0"`, `"type": "module"` y
 `"engines": { "node": ">=22.12.0" }`, con cuatro scripts: `dev`, `build`,
@@ -29,7 +29,7 @@ nombres.
 
 ## Alcance
 
-- `packages/cli/` con su `package.json`, `tsconfig.json`, `.npmignore` y
+- `cli/` con su `package.json`, `tsconfig.json`, `.npmignore` y
   `README.md`.
 - TypeScript estricto sobre Node `>=22.12.0`, ESM, sin dependencias de runtime.
 - `bin` apuntando a `dist/index.js` con `#!/usr/bin/env node`.
@@ -42,7 +42,7 @@ nombres.
 - `src/core/logger.ts`: logging estructurado a stderr.
 - `src/core/types.ts` y los puertos `FileSystemPort`, `SkillRegistryPort` y
   `ConfirmPort`.
-- `package.json` raíz con `workspaces: ["frontend", "packages/cli"]`.
+- `package.json` raíz con `workspaces: ["frontend", "cli"]`.
 - Renombrar el workspace del sitio a `@fwskills/site` con `private: true`.
 
 ## Fuera de alcance
@@ -76,12 +76,12 @@ nombres.
   versionado del sitio es interno; el que importa es el del CLI.
 - [ ] 2. Crear el `package.json` raíz con los workspaces declarados
   - Detalle de implementación: `package.json` en la raíz del repositorio con
-  `"private": true`, `"workspaces": ["frontend", "packages/cli"]`, `"engines":
+  `"private": true`, `"workspaces": ["frontend", "cli"]`, `"engines":
   { "node": ">=22.12.0" }` y los scripts de operación del monorepo. `skills/` **no**
   se declara como workspace: es contenido versionado, sin `package.json`, y no
   participa del `npm install`. A partir de aquí hay un único `package-lock.json` en
   la raíz y una sola instalación cubre sitio y CLI.
-- [ ] 3. Crear `packages/cli/package.json` con la superficie pública del paquete
+- [ ] 3. Crear `cli/package.json` con la superficie pública del paquete
   - Detalle de implementación: `"name": "fwskills"`, `"type": "module"`,
   `"version": "0.1.0"`, `"license": "MIT"`, `"engines": { "node": ">=22.12.0" }`,
   `"bin": { "fwskills": "./dist/index.js" }`, `"files": ["dist", "README.md",
@@ -90,7 +90,7 @@ nombres.
   `node --experimental-strip-types src/index.ts`, `build` con el empaquetador,
   `test` con `vitest run`, `check` con `tsc --noEmit`, `lint` con `eslint .` y
   `smoke` con `node dist/index.js list`.
-- [ ] 4. Crear `packages/cli/tsconfig.json` con el modo estricto y ES2023
+- [ ] 4. Crear `cli/tsconfig.json` con el modo estricto y ES2023
   - Detalle de implementación: `"strict": true`, `"target": "ES2023"`, `"module":
   "NodeNext"`, `"moduleResolution": "NodeNext"`, `"outDir": "dist"`, `"noEmit":
   true` para el chequeo y `"include": ["src", "test"]`. La restricción importante no
@@ -98,7 +98,7 @@ nombres.
   `namespace`, sin decoradores y sin parámetros de tipo en las clases, para que el
   mismo archivo funcione sin transformación en desarrollo, en pruebas y en el
   paquete publicado.
-- [ ] 5. Crear `packages/cli/.npmignore` que excluya `src/` y `test/` del tarball
+- [ ] 5. Crear `cli/.npmignore` que excluya `src/` y `test/` del tarball
   - Detalle de implementación: excluye `src/`, `test/`, `tsconfig.json`,
   `vitest.config.ts` y `node_modules/`, y conserva `dist/`, `README.md` y
   `LICENSE`. Un `.npmignore` mal hecho que incluya `src/` y `test/` aumenta el
@@ -172,7 +172,7 @@ nombres.
   `await command.run(ctx)`; y el resultado se asigna a `process.exitCode` en lugar
   de llamar a `process.exit`, para que las escrituras a `stdout` se vacíen antes de
   terminar. `src/index.ts` no contiene lógica de negocio ni mensajes de negocio.
-- [ ] 14. Crear `packages/cli/README.md` con el uso rápido
+- [ ] 14. Crear `cli/README.md` con el uso rápido
   - Detalle de implementación: la instalación con `npx fwskills --help`, la lista
   de los 7 comandos y los 6 flags, y un enlace explícito a la referencia completa
   en `/docs/cli` del sitio. El README no duplica la referencia: la duplicaría y
@@ -203,8 +203,8 @@ nombres.
 ## Criterios de Done
 
 - [ ] `npm install` en la raíz termina sin `EDUPLICATEWORKSPACE` y produce un único `package-lock.json`.
-- [ ] `frontend/package.json` declara `"name": "@fwskills/site"` y `"private": true`, y `packages/cli/package.json` declara `"name": "fwskills"`.
-- [ ] `packages/cli/package.json` tiene `"bin": { "fwskills": "./dist/index.js" }`, `"engines": { "node": ">=22.12.0" }`, `"type": "module"`, `"license": "MIT"` y cero dependencias de runtime.
+- [ ] `frontend/package.json` declara `"name": "@fwskills/site"` y `"private": true`, y `cli/package.json` declara `"name": "fwskills"`.
+- [ ] `cli/package.json` tiene `"bin": { "fwskills": "./dist/index.js" }`, `"engines": { "node": ">=22.12.0" }`, `"type": "module"`, `"license": "MIT"` y cero dependencias de runtime.
 - [ ] `npm run build -w fwskills && node dist/index.js --help` imprime los 7 comandos y sale con 0.
 - [ ] `node dist/index.js --version` imprime la versión del paquete y sale con 0; `--help` y `--version` funcionan antes y después del nombre del comando.
 - [ ] `node dist/index.js comando-inexistente` sale con **2** y nombra el comando en el mensaje de stderr.
@@ -213,7 +213,7 @@ nombres.
 - [ ] `DEBUG=1 node dist/index.js list 2>&1 >/dev/null` muestra líneas `debug:` con las decisiones tomadas, y ninguna contiene el valor de una variable sensible.
 - [ ] `NO_COLOR=1 node dist/index.js list > salida.txt` no deja ninguna secuencia de escape ANSI en el archivo.
 - [ ] `npm run check -w fwskills` termina con 0 errores y el código no contiene `enum`, `namespace` ni decoradores.
-- [ ] `npm pack --dry-run` en `packages/cli/` muestra `dist/index.js` y no muestra `src/` ni `test/`.
+- [ ] `npm pack --dry-run` en `cli/` muestra `dist/index.js` y no muestra `src/` ni `test/`.
 - [ ] Un test afirma que todo comando del registro tiene `name`, `summary`, `usage` y al menos un flag, y pasa.
 - [ ] `npm run verify -w fwskills` termina con 0 y encadena `check`, `test`, `lint` y `format:check`.
 - [ ] `frontend/README.md` y `specs/docs/03-ejecucion-local.md` indican que los comandos se ejecutan desde la raíz y nombran el workspace del sitio correctamente.

@@ -15,12 +15,12 @@ documento está en estado «propuesta» o «rechazada».
 | ADR-03 | Sin API pública; `modules/api/` se omite | Aceptada |
 | ADR-04 | Documentación con Astro Starlight y puente de tokens | Aceptada |
 | ADR-05 | Las colecciones de contenido de Astro son la fuente única del catálogo | Aceptada |
-| ADR-06 | Monorepo con npm workspaces | Aceptada |
+| ADR-06 | Monorepo con npm workspaces: `frontend/` y `cli/` en la raíz | Aceptada (ruta revisada) |
 | ADR-07 | Modelo de tokens semánticos con modo claro y oscuro | Aceptada |
 
 ---
 
-## ADR-01 — El paquete CLI `packages/cli/` se especifica como módulo `backend/`
+## ADR-01 — El paquete CLI `cli/` se especifica como módulo `backend/`
 
 ### Contexto
 
@@ -36,7 +36,7 @@ TypeScript, se ejecuta en la máquina del desarrollador y es propiedad del proye
 
 ### Decisión
 
-Se trata el CLI como el módulo `backend/`, implementado en `packages/cli/`. El criterio
+Se trata el CLI como el módulo `backend/`, implementado en `cli/`. El criterio
 no es «¿hay un servidor?», sino **«¿es el código no-navegador que posee la lógica?»**.
 
 Bajo este criterio, el módulo `backend/` es el conjunto de código Node/TypeScript del
@@ -143,7 +143,7 @@ superficie que no existe.
 proyecto es:
 
 1. La salida de ayuda del CLI (`fwskills --help` y la ayuda de cada comando).
-2. Los campos `exports` y `bin` del paquete npm en `packages/cli/package.json`.
+2. Los campos `exports` y `bin` del paquete npm en `cli/package.json`.
 
 No hay endpoints, ni rutas, ni versión de API, ni autenticación de API.
 
@@ -307,11 +307,37 @@ desalineada respecto de la otra.
 ### Decisión
 
 **Monorepo con npm workspaces en la raíz.** Workspaces declarados: `frontend/` y
-`packages/cli/`. Un único `package-lock.json` en la raíz. El paquete del CLI conserva
-su versionado independiente dentro del monorepo.
+`cli/`, ambos en el nivel raíz. Un único `package-lock.json` en la raíz. El paquete
+del CLI conserva su versionado independiente dentro del monorepo.
 
 `skills/` **no** es un workspace: es contenido versionado, sin `package.json`, y no
 participa del `npm install`.
+
+#### Por qué `cli/` y no `packages/cli/`
+
+La primera redacción de esta decisión decía `packages/cli/`. Se cambió a `cli/` en
+la raíz, y la razón es que **`packages/` no se gana un nivel con un solo paquete
+publicable**:
+
+- El sitio está declarado `private: true` y nunca se publica en npm. El único
+  artefacto que sale es el CLI, así que `packages/` contendría un único
+  directorio que puede vivir en la raíz sin nada que perder.
+- **`frontend/` y `cli/` en la raíz son simétricos**: dos workspaces, misma
+  profundidad, declarados igual. Con `frontend/` en la raíz y `packages/cli/`
+  anidado, el repo queda asimétrico sin que la asimetría signifique nada.
+- `skills/` ya está en la raíz, y es el origen de datos del CLI. Anidarlo dos
+  niveles lo aleja visualmente de lo que consume.
+- Ninguna herramienta exige `packages/`: npm y bun workspaces, Vite, los
+  deploys, ninguno mira la ruta. Se declara en `workspaces` y listo.
+- Si en el futuro aparece un segundo o tercer paquete publicable, mudarse a
+  `packages/` es un cambio de una entrada de `workspaces` más un `sed`. Al revés,
+  retrofitear es lo costoso.
+
+Mover también el sitio a `packages/site/` sí haría simétrica la alternativa
+"ambos dentro de `packages/`", pero se descartó: `frontend/` es la ruta base del
+glob loader que lee `skills/`, aparece en el `tsconfig`, en la base del enlace
+"Editar esta página" de la documentación y en los deploys. Ese rename cuesta más
+que la simetría que compra.
 
 ### Alternativas
 
@@ -334,7 +360,7 @@ participa del `npm install`.
 - **La documentación de `03-ejecucion-local.md` debe mantenerse al día** respecto del
   estado real: hoy los comandos se ejecutan desde `frontend/`, y pasarán a ejecutarse
   desde la raíz cuando se cree el workspace.
-- **Hay una colisión de nombres que resolver al momento de crear `packages/cli/`:**
+- **Hay una colisión de nombres que resolver al momento de crear `cli/`:**
   `frontend/package.json` ya se llama `fwskills`, y npm rechaza dos workspaces con el
   mismo nombre (`EDUPLICATEWORKSPACE`). Como el paquete publicado debe invocarse
   `npx fwskills`, el workspace del sitio debe adoptar un nombre distinto —por

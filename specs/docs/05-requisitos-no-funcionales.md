@@ -260,7 +260,7 @@ número de páginas generadas y no requiere mantenimiento operativo.
 ### Estructura y ownership
 
 - **Cada módulo tiene una responsabilidad única.** `frontend/` es el sitio,
-  `packages/cli/` es la lógica de Node, `skills/` es contenido, `specs/` es la
+  `cli/` es la lógica de Node, `skills/` es contenido, `specs/` es la
   especificación. Un archivo nuevo que no encaje en ninguna de ellas es una señal de
   que falta un módulo o de que el archivo está en el lugar equivocado.
 - **Workspaces con un solo lockfile** (ADR-06): el sitio y el CLI se versionan juntos y

@@ -22,7 +22,7 @@ levantar el sitio.
 ### Estado actual del repositorio
 
 A la fecha de este documento, el repositorio contiene únicamente `frontend/`. Todavía
-**no** existen `packages/cli/`, `skills/`, `src/content/` ni `starlight.config.mjs`;
+**no** existen `cli/`, `skills/`, `src/content/` ni `starlight.config.mjs`;
 son los elementos que el diseño target introduce (ADR-01, ADR-04, ADR-05, ADR-06).
 
 Hay dos hechos del árbol actual que conviene tener presentes antes de seguir:
@@ -79,7 +79,7 @@ npm install
 Comportamiento esperado con esa estructura:
 
 - `npm install` en la raíz instala las dependencias de `frontend/`, de
-  `packages/cli/` y de sus dependencias transitivas, con un solo `package-lock.json`.
+  `cli/` y de sus dependencias transitivas, con un solo `package-lock.json`.
 - Los scripts se ejecutan por workspace con `-w`/`--workspace` o con
   `--filter`, por ejemplo `npm run dev -w <nombre-del-workspace>`.
 - `skills/` **no** es un workspace: es contenido. No lleva `package.json` y no
@@ -95,7 +95,7 @@ npm error code EDUPLICATEWORKSPACE
 npm error must not have multiple workspaces with the same name
 ```
 
-Por lo tanto, cuando se cree `packages/cli/`, una de estas dos condiciones debe
+Por lo tanto, cuando se cree `cli/`, una de estas dos condiciones debe
 resolverse en el mismo commit que introduce el workspace:
 
 1. El workspace del sitio pasa a llamarse `@fwskills/site` (y se marca `private`),
@@ -154,7 +154,7 @@ suficiente) quedaría sin cubrir. Introducir un runner ahora sería configuraci�
 nadie usa.
 
 **Por qué es una brecha, no una decisión permanente.** En cuanto exista
-`packages/cli/` habrá lógica real: resolución de rutas, lectura de `SKILL.md`,
+`cli/` habrá lógica real: resolución de rutas, lectura de `SKILL.md`,
 validación de `compatibility`, escritura en disco. Ese código sí necesita pruebas
 automáticas, y ese es el momento de añadir el runner.
 
@@ -179,7 +179,7 @@ automáticas, y ese es el momento de añadir el runner.
 - Sin verificación de que el catálogo sigue siendo generable sin ediciones de
   frontend; esa invariante (ADR-05) se comprueba hoy de forma manual.
 
-### Plan de pruebas para `packages/cli/`
+### Plan de pruebas para `cli/`
 
 Cuando el CLI exista, la recomendación es **`node:test`**, el runner integrado en
 Node 22. La razón es concreta: no requiere instalar ninguna dependencia, funciona con

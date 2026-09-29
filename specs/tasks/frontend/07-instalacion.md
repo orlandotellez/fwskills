@@ -7,7 +7,7 @@ del repositorio es el bloque de terminal decorativo de
 `src/sections/Hero.astro` (163 líneas), que muestra un comando escrito a mano y
 no se puede copiar. No hay versión mínima de Node declarada en la página, ni
 tabla de los comandos del CLI, ni tabla de flags, ni sección de resolución de
-problemas. El paquete `packages/cli/` tampoco existe todavía, así que los datos
+problemas. El paquete `cli/` tampoco existe todavía, así que los datos
 que la página debe mostrar —7 comandos, 6 flags, carpetas de destino por agente—
 están especificados en `specs/modules/backend/03-api.md` pero no tienen ninguna
 fuente en el árbol de `frontend/`.

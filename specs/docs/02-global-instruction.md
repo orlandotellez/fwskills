@@ -33,7 +33,7 @@ inicial.
 | `frontend/` | `src/sections/{Header,Hero,Features,DesignSkills,HowItWorks,CTA,Footer}.astro` | Secciones de la landing, cada una un componente `.astro` independiente y reutilizable. |
 | `frontend/` | `src/pages/index.astro` | Compone `Layout.astro` más las secciones y produce `/`. |
 | `frontend/` | `public/favicon.svg` | Recurso estático servido tal cual. |
-| `backend/` → `packages/cli/` | `package.json`, `bin/`, `src/` | Paquete npm con el CLI. Es el código no-navegador del proyecto: sistema de archivos, resolución del registro de skills y operaciones de git. Se invoca como `npx fwskills add <skill>`. No expone endpoints HTTP (ADR-01). |
+| `backend/` → `cli/` | `package.json`, `bin/`, `src/` | Paquete npm con el CLI. Es el código no-navegador del proyecto: sistema de archivos, resolución del registro de skills y operaciones de git. Se invoca como `npx fwskills add <skill>`. No expone endpoints HTTP (ADR-01). |
 | `skills/` | `**/SKILL.md` | Contenido del catálogo. Una carpeta por skill, agrupada por área (`specs`, `design`, `qa`, `security`, y las que se agreguen). Contenido versionado, **no** un workspace de npm. |
 | `db/` | — | **No existe por decisión.** Sin persistencia: no hay esquema, migraciones ni ORM. El modelo de datos es el sistema de archivos. Ver ADR-02. |
 | `api/` | — | **No existe por decisión.** Sin servidor, sin cliente móvil y sin integraciones de terceros. Ver ADR-03. |

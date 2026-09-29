@@ -57,7 +57,7 @@ escribirse.
 Árbol objetivo:
 
 ```
-packages/cli/
+cli/
 ├── package.json              # name: fwskills, bin, engines.node >=22.12.0, type: module, license MIT
 ├── tsconfig.json             # strict, target ES2023, module NodeNext
 ├── README.md                 # uso rápido; la referencia completa vive en el sitio /docs/cli

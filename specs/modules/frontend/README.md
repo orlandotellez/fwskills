@@ -29,7 +29,7 @@ Estado real a fecha de estas specs:
 - `[EXISTE]` `frontend/README.md` (documenta `npm run dev` → `http://localhost:4321`,
   `npm run build` → `dist/`, `npm run preview`).
 - `[POR AÑADIR]` carpeta `skills/` en la raíz del repositorio: **no existe todavía**.
-- `[POR AÑADIR]` `packages/cli/`: **no existe todavía**.
+- `[POR AÑADIR]` `cli/`: **no existe todavía**.
 - `[POR AÑADIR]` `src/content/` (colección de contenido), `src/components/`,
   `src/lib/`, `src/styles/`, integración **Starlight** (`@astrojs/starlight`) y
   su configuración.

@@ -27,7 +27,7 @@ permisos de ese usuario, y su única salida es escribir archivos en disco.
 
 | Aspecto | Valor |
 |---|---|
-| Ruta | `packages/cli/` |
+| Ruta | `cli/` |
 | Nombre del paquete | `fwskills` |
 | Binario | `fwskills` (se invoca con `npx fwskills <command>`) |
 | Lenguaje | TypeScript sobre Node.js `>=22.12.0` |
@@ -35,7 +35,7 @@ permisos de ese usuario, y su única salida es escribir archivos en disco.
 | Payload de skills | Resuelto desde el repositorio en build/publicación |
 | Destino de instalación | Carpeta de skills del agente detectado en la máquina |
 
-**Estado: nada de esto existe todavía.** `packages/` no está en el repositorio
+**Estado: nada de esto existe todavía.** `cli/` no está en el repositorio
 hoy. Este módulo es íntegramente `[ESPECIFICADO]`, a diferencia del módulo
 `frontend`, que tiene una base real ya construida.
 

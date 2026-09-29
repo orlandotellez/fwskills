@@ -3,7 +3,7 @@
 ## Estado Actual
 
 Proyecto nuevo en esta área: no existe `dist/`, ni paso de empaquetado, ni
-publicación. `packages/cli/package.json` se crea en
+publicación. `cli/package.json` se crea en
 [`01-andamiaje-del-cli.md`](./01-andamiaje-del-cli.md) con el `bin` declarado, pero
 ese `bin` apunta a `./dist/index.js`, un archivo que todavía no se genera. En el
 repositorio no hay `.npmrc`, ni workflow de publicación, ni etiqueta de versión, ni
@@ -118,11 +118,11 @@ verificado y un proceso de publicación con su lista de comprobación.
   comandos es una intención. Se añade la comprobación de que la versión de
   `package.json` coincide con la etiqueta de git y con la entrada del changelog.
 - [ ] 10. Publicar en el registro público de npm
-  - Detalle de implementación: `npm publish --access public` desde `packages/cli/`,
+  - Detalle de implementación: `npm publish --access public` desde `cli/`,
   con un token de publicación de alcance mínimo y dos factores activos en la
   cuenta. El paquete es público y se resuelve sin credenciales para quien lo
   instala. El token de publicación **no** se versiona ni aparece en
-  `packages/cli/.env`; vive en la configuración de npm del entorno de
+  `cli/.env`; vive en la configuración de npm del entorno de
   publicación, y ningún archivo del repositorio lo referencia por su valor.
 - [ ] 11. Verificar la experiencia de `npx` desde una cuenta limpia
   - Detalle de implementación: en un directorio temporal, con una caché de npm
@@ -150,7 +150,7 @@ verificado y un proceso de publicación con su lista de comprobación.
 ## Criterios de Done
 
 - [ ] `npm run build -w fwskills` produce `dist/index.js`, el archivo empieza por `#!/usr/bin/env node` y está marcado como ejecutable.
-- [ ] `npm pack --dry-run` en `packages/cli/` muestra `dist/index.js`, `package.json`, `README.md` y `LICENSE`, y no muestra `src/`, `test/`, `tsconfig.json` ni ningún `.env`.
+- [ ] `npm pack --dry-run` en `cli/` muestra `dist/index.js`, `package.json`, `README.md` y `LICENSE`, y no muestra `src/`, `test/`, `tsconfig.json` ni ningún `.env`.
 - [ ] `node dist/index.js --help` funciona desde el tarball extraído, con una instalación limpia y sin toolchain en la máquina.
 - [ ] `npx fwskills --help` con la caché de npm vacía descarga el paquete, imprime los 7 comandos y sale con 0.
 - [ ] El paquete publicado no declara ningún `postinstall` y el código no contiene `eval` ni `import()` dinámico del payload.

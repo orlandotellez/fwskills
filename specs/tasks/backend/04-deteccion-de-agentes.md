@@ -147,4 +147,4 @@ preferencia entre agentes detectados y un error accionable cuando no hay ninguno
 - [ ] `DEBUG=1 npx fwskills add <ref> --dry-run` muestra los agentes detectados y la regla de precedencia aplicada, sin el valor de ninguna variable sensible.
 - [ ] Con el destino no escribible, el comando falla con el mensaje del sistema y código **1**, y no intenta elevar privilegios ni cambiar permisos.
 - [ ] La tabla de precedencia de 8 escenarios pasa como prueba unitaria, y los casos de detección de agentes pasan con `FileSystemPort` falso.
-- [ ] `grep -rn "FWSKILLS_AGENT\|FWSKILLS_HOME" packages/cli` no devuelve coincidencias: ninguna variable de entorno fuerza el destino.
+- [ ] `grep -rn "FWSKILLS_AGENT\|FWSKILLS_HOME" cli` no devuelve coincidencias: ninguna variable de entorno fuerza el destino.

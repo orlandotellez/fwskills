@@ -173,4 +173,4 @@ cero instalaciones parciales.
 - [ ] `npx fwskills update` sobre una skill no instalada por el CLI no hace nada con ella y lo dice.
 - [ ] Cuando la skill incluye scripts, la salida normal de `add` y `update` los nombra, y los scripts no declarados en el frontmatter no se instalan.
 - [ ] Ninguna escritura ocurre fuera de `<destino>/<categoria>/<slug>/`, verificado con la prueba de contención de rutas y con la de symlink que apunta fuera.
-- [ ] `grep -rn "process.exit" packages/cli/src/commands` no devuelve coincidencias, y `npm run verify -w fwskills` termina con 0.
+- [ ] `grep -rn "process.exit" cli/src/commands` no devuelve coincidencias, y `npm run verify -w fwskills` termina con 0.

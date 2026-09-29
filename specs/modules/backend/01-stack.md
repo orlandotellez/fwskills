@@ -1,6 +1,6 @@
 # 01 — Stack
 
-Estado: **todo este módulo es `[ESPECIFICADO]`.** `packages/cli/` no existe hoy
+Estado: **todo este módulo es `[ESPECIFICADO]`.** `cli/` no existe hoy
 en el repositorio. Lo que sí existe y condiciona esta elección es el
 `engines.node` del sitio: `>=22.12.0`.
 

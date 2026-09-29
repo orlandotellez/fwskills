@@ -8,7 +8,7 @@ entregables que se construyen y se versionan juntos:
 - **Un sitio estático** (`frontend/`) hecho con Astro 7, TypeScript y cero JavaScript
   en runtime. Contiene la landing, el catálogo de skills, las páginas de detalle por
   skill y la documentación del proyecto.
-- **Un CLI en Node/TypeScript** (`packages/cli/`) distribuido como paquete npm, que se
+- **Un CLI en Node/TypeScript** (`cli/`) distribuido como paquete npm, que se
   invoca como `npx fwskills add <skill>` para instalar una skill en el proyecto del
   usuario.
 

@@ -10,7 +10,7 @@
 | Cobertura | **No se mide** |
 | Scripts de prueba en `package.json` | **No existen** |
 
-`packages/cli/` no existe todavía, así que no hay nada que probar. Todo lo de este
+`cli/` no existe todavía, así que no hay nada que probar. Todo lo de este
 documento es `[ESPECIFICADO]`.
 
 ## Framework

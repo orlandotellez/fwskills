@@ -23,7 +23,7 @@ nivel bajo `skills/`. Las categorías iniciales son `specs`, `design`, `qa` y `s
 La categoría forma parte de la URL de la página de detalle
 (`/skills/[categoria]/[slug]`) y es el valor del campo `category` en el frontmatter.
 
-**CLI** — *Command Line Interface*. En fwskills, el paquete npm `packages/cli/` que se
+**CLI** — *Command Line Interface*. En fwskills, el paquete npm `cli/` que se
 instala y ejecuta con `npx`. Es el código no-navegador del proyecto y no expone
 endpoints HTTP; su contrato público es la salida de `fwskills --help` y los campos
 `exports` y `bin` del paquete.
@@ -50,7 +50,7 @@ se define una vez por modo —claro y oscuro— y se activa mediante un atributo
 
 **workspace** — Paquete declarado dentro de un monorepo de npm y resuelto desde un
 único `package-lock.json`. En fwskills los workspaces son `frontend/` y
-`packages/cli/`; `skills/` **no** es un workspace, porque es contenido y no código.
+`cli/`; `skills/` **no** es un workspace, porque es contenido y no código.
 
 **static build** — Compilación que produce archivos finales (HTML, CSS, JS) sin
 servidor detrás. No hay consultas en base de datos ni lógica de negocio en el

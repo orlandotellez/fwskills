@@ -99,14 +99,13 @@ fwskills/
 │   ├── design/**/SKILL.md
 │   ├── qa/**/SKILL.md
 │   └── security/**/SKILL.md
-└── packages/               # (pendiente)
-    └── cli/                # paquete npm del CLI
+└── cli/                    # (pendiente) paquete npm del CLI
 ```
 
 Reglas de colocación:
 
 - **`skills/` es contenido, no código.** No lleva `package.json` y no es un workspace.
-- **`packages/cli/` es el único lugar con lógica de Node.** Si una regla de negocio
+- **`cli/` es el único lugar con lógica de Node.** Si una regla de negocio
   aparece en un componente `.astro`, pertenece al CLI o al esquema de la colección, no
   a la vista.
 - **Los archivos de configuración de Astro se mantienen pocos y en la raíz de
@@ -128,7 +127,7 @@ errores del sitio es el propio build:
 - **Ningún `catch` vacío ni ningún error silencioso en el sitio.** Si algo falla, el
   build falla.
 
-Para el CLI (`packages/cli/`), en contraste, el contrato es explícito:
+Para el CLI (`cli/`), en contraste, el contrato es explícito:
 
 - **Código de salida distinto de cero** ante cualquier fallo. Un `npx fwskills add` que
   no instala nada y devuelve éxito es un error, no un caso tolerable.
@@ -199,7 +198,7 @@ Lista de verificación antes de aprobar una pull request:
 
 - [ ] `npm run astro -- check` termina sin errores de tipos.
 - [ ] `npm run build` termina de forma exitosa.
-- [ ] `npm test` pasa, si el cambio toca `packages/cli/`.
+- [ ] `npm test` pasa, si el cambio toca `cli/`.
 - [ ] Ningún `any`, ningún `@ts-ignore`, ninguna relajación del modo estricto.
 
 ### Arquitectura

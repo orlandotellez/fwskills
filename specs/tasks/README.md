@@ -67,7 +67,7 @@ Tres reglas adicionales:
 ## Cómo se abre una tarea que atraviesa módulos
 
 fwskills tiene dos workspaces con código: el sitio (`frontend/`) y el CLI
-(`packages/cli/`), más el contenido (`skills/`) y la especificación (`specs/`).
+(`cli/`), más el contenido (`skills/`) y la especificación (`specs/`).
 Un cambio que los toca se documenta en **varios archivos**, nunca en uno solo
 monstruoso.
 
@@ -125,7 +125,7 @@ afirmación.
 | [`10-seo-y-404.md`](./frontend/10-seo-y-404.md) | Metadatos, `sitemap.xml`, `robots.txt`, fallo ruidoso de `PUBLIC_SITE_URL`, página 404 | 01, 04-09 |
 | [`11-datos-en-build-time.md`](./frontend/11-datos-en-build-time.md) | Métricas de GitHub resueltas en build, con caché y degradación | 03 |
 
-### Backend / CLI (`packages/cli/`)
+### Backend / CLI (`cli/`)
 
 | Archivo | Área | Depende de |
 |---|---|---|

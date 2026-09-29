@@ -11,7 +11,7 @@ Las variables que existen en el proyecto tienen dos dueños distintos:
 | Dueño | Variables |
 |---|---|
 | Build del sitio (`frontend/`) | `GITHUB_TOKEN`, `PUBLIC_SITE_URL`, `PUBLIC_SITE_DESCRIPTION` |
-| CLI (`packages/cli/`) | `NO_COLOR`, `FORCE_COLOR`, `DEBUG` |
+| CLI (`cli/`) | `NO_COLOR`, `FORCE_COLOR`, `DEBUG` |
 
 Cruzar las dos mitades es un error de diseño que conviene evitar explícitamente:
 el CLI **no** lee `GITHUB_TOKEN` (no llama a la API de GitHub en runtime) y el

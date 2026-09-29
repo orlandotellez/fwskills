@@ -10,7 +10,7 @@ ADR-03 respectivamente (`docs/07-decisiones.md`).
 | Módulo | Archivos principales | Propósito |
 | --- | --- | --- |
 | `frontend/` | `package.json`, `astro.config.mjs`, `tsconfig.json`, `.env.example`, `src/layouts/Layout.astro`, `src/sections/*.astro`, `src/pages/*.astro`, `public/` | Sitio Astro 7: landing, catálogo de skills y documentación. Genera la salida estática en `dist/`. No envía JavaScript al navegador salvo lo estrictamente necesario. |
-| `backend/` → `packages/cli/` | `package.json`, `bin/`, `src/`, `README.md` | Paquete npm con el CLI en Node/TypeScript. Es el código no-navegador del proyecto: sistema de archivos, resolución del registro de skills y operaciones de git. Se invoca como `npx fwskills add <skill>`. **No expone endpoints HTTP** (ADR-01). |
+| `backend/` → `cli/` | `package.json`, `bin/`, `src/`, `README.md` | Paquete npm con el CLI en Node/TypeScript. Es el código no-navegador del proyecto: sistema de archivos, resolución del registro de skills y operaciones de git. Se invoca como `npx fwskills add <skill>`. **No expone endpoints HTTP** (ADR-01). |
 | `skills/` | `**/SKILL.md` | Contenido del catálogo. Una carpeta por skill, agrupada en subcarpetas por área (`specs`, `design`, `qa`, `security`, y las que se agreguen). No es un workspace de npm: es contenido versionado. |
 | `db/` | — | **No existe.** El proyecto no tiene persistencia. Ver ADR-02. |
 | `api/` | — | **No existe.** El proyecto no expone una API pública. Ver ADR-03. |

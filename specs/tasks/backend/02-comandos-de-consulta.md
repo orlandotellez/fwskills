@@ -138,5 +138,5 @@ salida que significan algo.
 - [ ] Una referencia con formato inválido —mayúsculas, `..`, espacios interiores, cero o dos `/`— sale con **2** y el mensaje indica el formato esperado, sin normalizarla en silencio.
 - [ ] `--help` y `--version` funcionan antes y después del nombre del comando, y la ayuda de cada comando lista solo los flags que le aplican.
 - [ ] Un fallo del puerto de registro sale con **6** y un error no clasificado sale con **1**, nunca con **0**.
-- [ ] `grep -rn "process.exit" packages/cli/src` no devuelve ninguna coincidencia: el código se propaga a `process.exitCode` para que stdout se vacíe.
+- [ ] `grep -rn "process.exit" cli/src` no devuelve ninguna coincidencia: el código se propaga a `process.exitCode` para que stdout se vacíe.
 - [ ] Ninguno de los cuatro comandos llama a `ConfirmPort.ask()`, y `npm run verify -w fwskills` termina con 0.

@@ -35,7 +35,7 @@ fwskills/
             └── index.astro       # 21 líneas; compone Layout + secciones
 ```
 
-Lo que **no** existe hoy: `skills/`, `packages/`, `src/content/`,
+Lo que **no** existe hoy: `skills/`, `cli/`, `src/content/`,
 `src/components/`, `src/lib/`, `src/styles/`, configuración de Starlight,
 cualquier linter, cualquier runner de tests, `sitemap.xml`, `robots.txt`.
 
@@ -54,8 +54,7 @@ fwskills/
 │       └── .../SKILL.md
 │   # añadir una skill = añadir una carpeta. Sin tocar frontend/.
 │   # añadir una categoría = añadir una subcarpeta. Sin tocar frontend/.
-├── packages/
-│   └── cli/                            # npx fwskills (ver ../backend/)
+├── cli/                               # npx fwskills (ver ../backend/)
 ├── frontend/
 │   ├── astro.config.mjs                # site + integraciones (starlight, sitemap)
 │   ├── package.json
@@ -120,7 +119,7 @@ fwskills/
 
 ### Regla de dependencia entre carpetas
 
-`skills/` **no conoce** `frontend/` ni `packages/cli/`. La dependencia va en un
+`skills/` **no conoce** `frontend/` ni `cli/`. La dependencia va en un
 solo sentido: los dos consumidores leen el árbol de skills. Por eso un
 `SKILL.md` es, a la vez, la fuente del catálogo web y el payload que descarga
 el CLI.

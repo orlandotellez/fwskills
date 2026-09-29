@@ -96,7 +96,7 @@ permite a quien escribe una skill **validar antes de abrir el PR**.
 
 `[POR AÑADIR]`. Prettier con un único archivo de configuración en la raíz del
 workspace, porque los archivos que se tocan viven en tres sitios distintos
-(`frontend/`, `skills/`, `packages/cli/`) y no puede haber una respuesta
+(`frontend/`, `skills/`, `cli/`) y no puede haber una respuesta
 distinta según dónde se ejecute.
 
 | Ajuste | Valor | Motivo |
