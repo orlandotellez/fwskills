@@ -6,6 +6,9 @@
  * a one-line edit here, not a find-and-replace across the site.
  */
 
+/** Canonical repository. Every GitHub URL below is derived from this. */
+const REPO_URL = 'https://github.com/orlandotellez/fwskills';
+
 export const SITE = {
   name: 'fwskills',
   tagline: 'Skills comunitarias para agentes de IA',
@@ -17,18 +20,18 @@ export const SITE = {
   /** Must end without a trailing slash. Read from PUBLIC_SITE_URL. */
   url: (import.meta.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, ''),
 
-  repo: 'fwskills',
-  github: 'https://github.com/fwskills/fwskills',
+  repo: 'orlandotellez/fwskills',
+  github: REPO_URL,
   npm: 'https://www.npmjs.com/package/fwskills',
   community: 'https://discord.gg/fwskills',
 
-  issues: 'https://github.com/fwskills/fwskills/issues/new',
-  newIssue: 'https://github.com/fwskills/fwskills/issues/new?template=bug.yml',
-  security: 'https://github.com/fwskills/fwskills/security/advisories/new',
-  conduct: 'https://github.com/fwskills/fwskills/blob/main/CODE_OF_CONDUCT.md',
-  contributing: 'https://github.com/fwskills/fwskills/blob/main/CONTRIBUTING.md',
-  governance: 'https://github.com/fwskills/fwskills/blob/main/GOVERNANCE.md',
-  licenseFile: 'https://github.com/fwskills/fwskills/blob/main/LICENSE',
+  issues: `${REPO_URL}/issues/new`,
+  newIssue: `${REPO_URL}/issues/new?template=bug.yml`,
+  security: `${REPO_URL}/security/advisories/new`,
+  conduct: `${REPO_URL}/blob/main/CODE_OF_CONDUCT.md`,
+  contributing: `${REPO_URL}/blob/main/CONTRIBUTING.md`,
+  governance: `${REPO_URL}/blob/main/GOVERNANCE.md`,
+  licenseFile: `${REPO_URL}/blob/main/LICENSE`,
 } as const;
 
 export const NAV = [
@@ -57,11 +60,11 @@ export function absolute(path: string): string {
 /** GitHub blob URL for a file in the repository. */
 export function repoFile(path: string, line?: number): string {
   const clean = path.replace(/^\//, '');
-  const base = `${SITE.github}/blob/main/${clean}`;
+  const base = `${REPO_URL}/blob/main/${clean}`;
   return line ? `${base}#L${line}` : base;
 }
 
 /** Direct GitHub edit URL for a file. */
 export function repoEdit(path: string): string {
-  return `${SITE.github}/edit/main/${path.replace(/^\//, '')}`;
+  return `${REPO_URL}/edit/main/${path.replace(/^\//, '')}`;
 }
