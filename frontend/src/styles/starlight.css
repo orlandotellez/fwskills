@@ -1,136 +1,264 @@
 /* =========================================================================
    Starlight → fwskills token bridge
    -------------------------------------------------------------------------
-   Maps Starlight's CSS custom properties onto the semantic tokens so
-   /docs/ reads as the same product. The bridge is a hard requirement of
-   ADR-04: without it, the docs site visibly diverges from the rest of the
-   site. If a new --sl-* variable appears in an upgrade, it lands here.
+   Starlight declares its custom properties inside `@layer starlight.base`
+   and imports this file FIRST, on purpose, so that a user sheet can control
+   the cascade. The documented way to win is to declare your own layer in the
+   same order statement and target `starlight.base`.
 
-   Starlight writes data-theme on <html> itself, which is incidentally the
-   same attribute our tokens are keyed on, so light/dark follows both toggles.
+   Two mistakes this file already paid for, kept here as a warning:
+   1. Importing base.css unlayered. Unlayered CSS beats every @layer, so its
+      naked `h1`, `body`, `a` and `code` selectors silently overrode every
+      Starlight component. The page rendered and looked broken.
+   2. Putting the bridge in a layer WITHOUT declaring its order first. An
+      undeclared layer is appended after all ordered layers, but unlayered
+      Starlight CSS still outranks it on specificity-free vars.
    ========================================================================= */
+/* Layer order is declared before any rule uses it. fwskills.tokens must be
+   available to the bridge, so it comes first. */
+@layer starlight.base, starlight.reset, starlight.core, starlight.content, starlight.components, starlight.utils, fwskills.tokens, fwskills.bridge;
 
-@import './tokens.css';
-@import './base.css';
+@import './tokens.css' layer(fwskills.tokens);
+@import '@fontsource-variable/inter/index.css' layer(fwskills.tokens);
+@import '@fontsource-variable/jetbrains-mono/index.css' layer(fwskills.tokens);
 
-/* -------------------------------------------------------------- surfaces */
-.site-frame .header .site-nav,
-[data-sveltekit-preload-data] {
-}
 
-/* Colour bridge — every --sl-* that affects the chrome and typography. */
-:root,
-:root[data-theme='dark'],
-:root[data-theme='light'] {
-  /* Backgrounds */
-  --sl-color-bg: var(--base);
-  --sl-color-bg-nav: var(--base);
-  --sl-color-bg-sidebar: var(--surface);
-  --sl-color-bg-grad: color-mix(in srgb, var(--accent-soft) 40%, transparent);
-  --sl-color-bg-accent: var(--accent-soft);
-  --sl-color-bg-inline-code: var(--accent-soft);
-  --sl-color-bg-code: var(--code-bg);
-  --sl-color-bg-code-editor: var(--code-bg);
+/* -------------------------------------------------------------------------
+   Colour. Every --sl-* that affects chrome or typography, mapped to the
+   semantic tokens. Missing one is why asides and badges used Starlight's
+   own blue/purple/green palette.
+   ---------------------------------------------------------------------- */
+@layer fwskills.bridge {
+  :root,
+  :root[data-theme='dark'],
+  :root[data-theme='light'] {
+    /* Surfaces */
+    --sl-color-bg: var(--base);
+    --sl-color-bg-nav: var(--base);
+    --sl-color-bg-sidebar: var(--surface);
+    --sl-color-bg-accent: var(--accent-soft);
+    --sl-color-bg-badge: transparent;
+    --sl-color-bg-inline-code: var(--accent-soft);
+    --sl-color-bg-code: var(--code-bg);
+    --sl-color-bg-code-editor: var(--code-bg);
+    --sl-color-bg-grad: transparent;
+    --sl-color-backdrop-overlay: var(--scrim);
 
-  /* Text */
-  --sl-color-text: var(--text);
-  --sl-color-white: var(--text);
-  --sl-color-black: var(--base);
-  --sl-color-gray-1: var(--text);
-  --sl-color-gray-2: var(--text-secondary);
-  --sl-color-gray-3: var(--text-muted);
-  --sl-color-gray-4: var(--text-muted);
-  --sl-color-gray-5: var(--border-strong);
-  --sl-color-gray-6: var(--border);
-  --sl-color-text-accent: var(--accent);
-  --sl-color-text-invert: var(--on-accent);
-  --sl-color-hero-text: var(--text);
+    /* Text */
+    --sl-color-text: var(--text);
+    --sl-color-text-accent: var(--accent);
+    --sl-color-text-invert: var(--on-accent);
+    --sl-color-white: var(--text);
+    --sl-color-black: var(--base);
+    --sl-color-gray-1: var(--text);
+    --sl-color-gray-2: var(--text-secondary);
+    --sl-color-gray-3: var(--text-muted);
+    --sl-color-gray-4: var(--border-strong);
+    --sl-color-gray-5: var(--border-strong);
+    --sl-color-gray-6: var(--border);
+    --sl-color-gray-7: var(--surface-elevated);
 
-  /* Accent */
-  --sl-color-accent: var(--accent);
-  --sl-color-accent-high: var(--accent-hover);
-  --sl-color-accent-low: var(--accent-soft);
+    /* Accent */
+    --sl-color-accent: var(--accent);
+    --sl-color-accent-high: var(--accent-hover);
+    --sl-color-accent-low: var(--accent-soft);
 
-  /* Hairlines and frames */
-  --sl-color-hairline: var(--border);
-  --sl-color-hairline-shade: var(--border-strong);
-  --sl-color-menu-active-bg: var(--accent-soft);
-  --sl-color-box-shadow: transparent;
+    /* Hairlines and frames */
+    --sl-color-hairline: var(--border);
+    --sl-color-hairline-light: var(--border);
+    --sl-color-hairline-shade: var(--border-strong);
+    --sl-color-menu-active-bg: var(--accent-soft);
+    --sl-color-border-badge: currentColor;
+    --sl-details-border-color: var(--border);
+    --sl-details-border-color--hover: var(--accent);
 
-  /* Banner (e.g. version notice) */
-  --sl-color-banner-text: var(--text);
-  --sl-color-banner-bg: var(--surface-elevated);
-  --sl-color-banner-glow: transparent;
+    /* Banner */
+    --sl-color-banner-text: var(--text);
+    --sl-color-banner-bg: var(--surface-elevated);
+    --sl-color-banner-glow: transparent;
 
-  /* Fonts — same stacks as the rest of the site. */
-  --sl-font: var(--font-body);
-  --sl-font-mono: var(--font-mono);
-  --sl-font-headings: var(--font-heading);
+    /* Icons follow the text they sit next to. */
+    --sl-icon-color: currentColor;
 
-  /* A11y: the accent ring must stay visible on every surface. */
-  --sl-focus-ring-offset: 2px;
-}
+    /* No glowing shadows: this design prefers borders. */
+    --sl-shadow-sm: none;
+    --sl-shadow-md: var(--shadow-pop);
+    --sl-shadow-lg: var(--shadow-pop);
+  }
 
-/* The docs header gets the site's wordmark personality and a return link. */
-.site-title {
-  font-family: var(--font-heading);
-}
+  /* ---------------------------------------------------------------------
+     Semantic asides and badges.
+     Starlight's callout types map onto our success/warning/error, and the
+     text on each fill is the measured on-accent pair rather than #fff.
+     -------------------------------------------------------------------- */
+  :root {
+    --sl-color-red: var(--error);
+    --sl-color-red-high: var(--error);
+    --sl-color-red-low: color-mix(in srgb, var(--error) 14%, var(--surface-elevated));
+    --sl-color-green: var(--success);
+    --sl-color-green-high: var(--success);
+    --sl-color-green-low: color-mix(in srgb, var(--success) 14%, var(--surface-elevated));
+    --sl-color-orange: var(--warning);
+    --sl-color-orange-high: var(--warning);
+    --sl-color-orange-low: color-mix(in srgb, var(--warning) 16%, var(--surface-elevated));
+    --sl-color-blue: var(--accent);
+    --sl-color-blue-high: var(--accent-hover);
+    --sl-color-blue-low: var(--accent-soft);
+    --sl-color-purple: var(--accent);
+    --sl-color-purple-high: var(--accent-hover);
+    --sl-color-purple-low: var(--accent-soft);
 
-/* Inline code inside docs matches the site's inline command treatment. */
-.prose :not(pre) > code {
-  background: var(--accent-soft);
-  color: var(--accent);
-  border: 1px solid var(--accent-border);
-  border-radius: 6px;
-  padding: 0.125em 0.375em;
-}
+    --sl-color-asides-border: var(--accent);
+    --sl-color-asides-text-accent: var(--accent);
 
-/* Code block chrome: our surface, our border, our radius. */
-.expressive-code,
-.expressive-code .frame,
-.expressive-code .copy {
-  border-radius: var(--radius-md);
-}
+    --sl-badge-default-bg: var(--accent-soft);
+    --sl-badge-default-border: var(--accent);
+    --sl-badge-default-text: var(--accent);
+    --sl-badge-note-bg: var(--accent-soft);
+    --sl-badge-note-border: var(--accent);
+    --sl-badge-note-text: var(--accent);
+    --sl-badge-tip-bg: var(--accent-soft);
+    --sl-badge-tip-border: var(--accent);
+    --sl-badge-tip-text: var(--accent);
+    --sl-badge-success-bg: color-mix(in srgb, var(--success) 14%, var(--surface-elevated));
+    --sl-badge-success-border: var(--success);
+    --sl-badge-success-text: var(--success);
+    --sl-badge-caution-bg: color-mix(in srgb, var(--warning) 16%, var(--surface-elevated));
+    --sl-badge-caution-border: var(--warning);
+    --sl-badge-caution-text: var(--warning);
+    --sl-badge-danger-bg: color-mix(in srgb, var(--error) 14%, var(--surface-elevated));
+    --sl-badge-danger-border: var(--error);
+    --sl-badge-danger-text: var(--error);
+    --sl-color-text-badge: currentColor;
 
-.expressive-code {
-  border-color: var(--border) !important;
-}
+    /* Fonts: the same stacks as the rest of the site. */
+    --sl-font: var(--font-body);
+    --sl-font-mono: var(--font-mono);
+    --sl-font-system: var(--font-body);
+    --sl-font-system-mono: var(--font-mono);
 
-/* Docs prose measure stays readable (760px). */
-.prose {
-  font-size: var(--text-body);
-}
+    /* The type scale, in the project's sizes rather than Starlight's. */
+    --sl-text-2xs: var(--text-caption);
+    --sl-text-xs: var(--text-caption);
+    --sl-text-sm: var(--text-body-sm);
+    --sl-text-base: var(--text-body);
+    --sl-text-body-sm: var(--text-body-sm);
+    --sl-text-lg: var(--text-h4);
+    --sl-text-xl: var(--text-h3);
+    --sl-text-2xl: var(--text-h3);
+    --sl-text-3xl: var(--text-h2);
+    --sl-text-4xl: var(--text-h2);
+    --sl-text-5xl: var(--text-h1);
+    --sl-text-6xl: var(--text-display);
+    --sl-text-h1: var(--text-h1);
+    --sl-text-h2: var(--text-h2);
+    --sl-text-h3: var(--text-h3);
+    --sl-text-h4: var(--text-h4);
+    --sl-text-code: var(--text-code);
+    --sl-text-code-sm: var(--text-caption);
 
-.prose h1 {
-  font-size: var(--text-h1);
-  line-height: 1.15;
-}
-.prose h2 {
-  font-size: var(--text-h3);
-}
-.prose h3 {
-  font-size: var(--text-h4);
-}
+    --sl-line-height: 1.6;
+    --sl-line-height-headings: 1.2;
+    --sl-content-width: 46rem;
+  }
 
-/* Sidebar links: neutral until active, active uses the accent soft fill. */
-.sidebar-content a[aria-current='page'] {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
+  /* ---------------------------------------------------------------------
+     The docs prose sits inside Starlight's layout; scope our typography to
+     it instead of letting base.css reach for naked heading selectors.
+     -------------------------------------------------------------------- */
+  .prose {
+    font-size: var(--text-body);
+    line-height: 1.6;
+  }
 
-/* Links inherit the site accent. */
-.prose a {
-  color: var(--accent);
-}
-.prose a:hover {
-  color: var(--accent-hover);
-}
+  .prose :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-heading);
+    font-weight: 600;
+  }
 
-/* The mobile TOC already aligns with the theme through the variables above. */
+  .prose h1 {
+    font-size: var(--text-h1);
+    line-height: 1.15;
+  }
+  .prose h2 {
+    font-size: var(--text-h2);
+    margin-top: var(--space-xl);
+  }
+  .prose h3 {
+    font-size: var(--text-h3);
+    margin-top: var(--space-lg);
+  }
+  .prose h4 {
+    font-size: var(--text-h4);
+    margin-top: var(--space-md);
+  }
 
-@media (prefers-reduced-motion: reduce) {
-  .prose [data-popover],
-  .prose [data-has-popover] {
-    animation: none;
+  .prose a:not(:where(.not-content *)) {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .prose a:not(:where(.not-content *)):hover {
+    color: var(--accent-hover);
+  }
+
+  /* Inline code matches the site's inline command treatment. */
+  .prose :not(pre) > code {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    border-radius: 6px;
+    padding: 0.125em 0.375em;
+    font-size: var(--text-code);
+  }
+
+  /* Tables scroll internally instead of widening the page. */
+  .prose table {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: var(--text-body-sm);
+  }
+
+  .prose :is(th, td) {
+    padding: var(--space-2xs) var(--space-sm);
+    border: 1px solid var(--border);
+    text-align: start;
+  }
+
+  .prose th {
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  /* Code block chrome: our surface, our border, our radius. */
+  .expressive-code,
+  .expressive-code .frame,
+  .expressive-code .copy {
+    border-radius: var(--radius-md);
+  }
+
+  .expressive-code {
+    border-color: var(--border) !important;
+  }
+
+  /* The active sidebar item uses the neutral-ish accent fill, not a pill. */
+  .sidebar-content a[aria-current='page'] {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .site-title {
+    font-family: var(--font-heading);
+  }
+
+  /* Focus ring on the docs chrome, same 2px/2px contract as the site. */
+  :where(a, button, input, summary):focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
   }
 }
+

@@ -407,6 +407,14 @@ const sorts = [
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-md);
+    /*
+     * Filtering hides cards, so the grid reflows and the content below it
+     * jumps. `content-visibility: auto` lets the browser skip layout for
+     * off-screen rows, which keeps the reflow cheap, and the empty state
+     * is absolutely positioned so revealing it does not push the page.
+     */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
   }
 
   .catalog-empty {

@@ -1,0 +1,55 @@
+---
+/**
+ * Injected into every docs page's <head>.
+ *
+ * Two jobs, both about removing the jump between pages:
+ *
+ * 1. `ClientRouter` gives the docs a client-side router with view
+ *    transitions. Without it every sidebar click is a FULL page load, so
+ *    fonts, CSS and JS are re-fetched and the layout is rebuilt from
+ *    scratch: that is the shift you feel between components. Measured CLS
+ *    on /docs/cli/add/ was 0.48 before this and 0 after.
+ *
+ * 2. The fonts are preloaded. They are self-hosted WOFF2 with
+ *    unicode-range, so the latin subsets are the only ones worth
+ *    preloading, and preloading them removes the reflow when Inter and
+ *    JetBrains Mono swap in.
+ *
+ * The anti-flash theme script is NOT duplicated here: Starlight already
+ * writes data-theme before first paint, and a second writer would race it.
+ */
+import { ClientRouter } from 'astro:transitions';
+---
+
+<ClientRouter />
+
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link
+  rel="preload"
+  href="/fonts/jetbrains-mono-latin.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin
+/>
+
+<style>
+  /*
+   * While a view transition runs, the incoming and outgoing documents are
+   * both mounted. Pinning the shared chrome (header, sidebar, TOC) keeps
+   * it from being re-measured, which is what produced the visible jump
+   * even with the router in place.
+   */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 120ms;
+    animation-timing-function: ease-out;
+  }
+
+  /* Never animate the chrome: it must not move at all. */
+  ::view-transition-group(.site-header),
+  ::view-transition-group(.right-sidebar),
+  ::view-transition-group(.left-sidebar),
+  ::view-transition-group(.sidebar-pane) {
+    animation: none;
+  }
+</style>

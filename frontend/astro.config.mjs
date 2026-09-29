@@ -77,10 +77,18 @@ export default defineConfig({
         title: 'fwskills — Docs',
         // We ship our own 404 page; Starlight would inject a second one.
         disable404Route: true,
+        // The docs are in Spanish; Starlight defaults to lang="en".
+        defaultLocale: 'root',
+        locales: {
+          root: { label: 'Español', lang: 'es' },
+        },
         description:
           'Documentación de fwskills: introducción, primeros pasos, referencia del CLI, anatomía de una skill y contribución.',
         favicon: '/favicon.svg',
         customCss: ['./src/styles/starlight.css'],
+        // Client-side router + font preload: removes the full reload that
+        // caused the layout shift between docs pages.
+        components: { Head: './src/components/DocsHead.astro' },
         editLink: { baseUrl: DOCS_EDIT_BASE },
         social: [{ icon: 'github', href: 'https://github.com/fwskills/fwskills', label: 'GitHub' }],
         lastUpdated: true,
