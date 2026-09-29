@@ -97,7 +97,7 @@ Quién mantiene qué, y con qué criterio.
 | Sistema de diseño | Mantenedores | Cambios que tocan `tokens.css` requieren una aprobación extra. |
 | Catálogo y generación | Mantenedores | Una skill rota rompe el build a propósito. |
 | Documentación | Contribuyentes | Mismo flujo que una skill. |
-| CLI (`packages/cli`) | Mantenedores | Release y versionado SemVer. |
+| CLI (`cli/`) | Mantenedores | Release y versionado SemVer. |
 | Avisos de seguridad | Mantenedores | Ver más abajo. |
 
 Un mantenedor que lleva meses sin contribuir sigue siendo mantenedor. El rol

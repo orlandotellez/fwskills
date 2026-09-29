@@ -22,7 +22,7 @@ carpetas de `skills/`.
 | CLI `npx fwskills add <skill>` | **Especificado, no implementado** |
 
 El CLI está especificado en [`specs/modules/backend/`](specs/modules/backend/)
-con 7 comandos, 6 flags y 7 códigos de salida, pero `packages/` todavía no
+con 7 comandos, 6 flags y 7 códigos de salida, pero `cli/` todavía no
 existe. La documentación ya lo describe, así que la diferencia es
 intencional y visible, no un descuido.
 

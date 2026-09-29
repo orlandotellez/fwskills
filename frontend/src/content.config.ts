@@ -13,7 +13,7 @@ import { docsSchema } from '@astrojs/starlight/schema';
  */
 const skills = defineCollection({
   // `base` is the repository root because skills/ lives there, next to
-  // frontend/ and packages/cli/ — that shared location is what lets the CLI
+  // frontend/ and cli/ — that shared location is what lets the CLI
   // and the site read the same folders. The glob loader rejects a `../`
   // pattern, so the base is the parent and the pattern stays relative to it.
   loader: glob({ pattern: 'skills/*/*/SKILL.md', base: '..' }),
