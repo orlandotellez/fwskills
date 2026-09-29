@@ -2,6 +2,7 @@
   "name": "fwskills",
   "type": "module",
   "version": "1.0.0",
+  "license": "MIT",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -33,5 +34,15 @@
     "@types/markdown-it": "^14.2.0",
     "@types/node": "^26.6.3",
     "typescript": "^6.0.3"
-  }
+  },
+  "description": "Sitio, catálogo y documentación de fwskills",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orlandotellez/fwskills.git"
+  },
+  "homepage": "https://fwskills.dev",
+  "bugs": {
+    "url": "https://github.com/orlandotellez/fwskills/issues"
+  },
+  "private": true
 }
