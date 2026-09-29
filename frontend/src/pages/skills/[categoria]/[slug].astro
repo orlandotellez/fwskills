@@ -1,0 +1,432 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import Badge from '../../../components/Badge.astro';
+import PackageTabs from '../../../components/PackageTabs.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import SkillCard from '../../../components/SkillCard.astro';
+import { renderSkillBody } from '../../../lib/markdown';
+import { SITE, repoFile, repoEdit } from '../../../lib/site';
+import { authorList, getSkills, installCommand, skillSlug } from '../../../lib/skills';
+
+export async function getStaticPaths() {
+  const skills = await getSkills();
+  return skills.map((skill) => ({
+    params: {
+      categoria: skill.data.category,
+      slug: skill.data.name,
+    },
+    props: { skill },
+  }));
+}
+
+export interface Props {
+  skill: CollectionEntry<'skills'>;
+}
+
+const { skill } = Astro.props;
+const { html: bodyHtml, headings } = await renderSkillBody(skill.body ?? '');
+
+const authors = authorList(skill);
+const related = (await getSkills())
+  .filter((s) => s.id !== skill.id)
+  .filter(
+    (s) =>
+      s.data.category === skill.data.category ||
+      s.data.tags.some((t) => skill.data.tags.includes(t)),
+  )
+  .slice(0, 3);
+
+const files = ['SKILL.md', 'references/', 'scripts/', 'assets/'];
+const updated = skill.data.updatedAt
+  ? new Date(skill.data.updatedAt).toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      timeZone: 'UTC',
+    })
+  : null;
+---
+
+<Layout
+  title={`${skill.data.name} — skill de ${skill.data.category} · fwskills`}
+  description={skill.data.description}
+>
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs
+        items={[
+          { label: 'Inicio', href: '/' },
+          { label: 'Skills', href: '/skills' },
+          { label: skill.data.category, href: `/skills/?categoria=${skill.data.category}` },
+          { label: skill.data.name },
+        ]}
+      />
+
+      <header class="skill-hero">
+        <div class="skill-hero__head">
+          <div>
+            <h1 class="skill-hero__name">{skill.data.name}</h1>
+            <div class="skill-hero__badges">
+              <Badge variant="category">{skill.data.category}</Badge>
+              <Badge variant="version">v{skill.data.version}</Badge>
+              {skill.data.compatibility.map((c) => (
+                <Badge variant="compatibility">{c}</Badge>
+              ))}
+            </div>
+          </div>
+
+          <div class="skill-hero__meta">
+            {
+              authors.length > 0 && (
+                <p class="skill-hero__authors">
+                  por{' '}
+                  {authors.map((author, i) => (
+                    <span>
+                      {i > 0 && ', '}
+                      <a href={`${SITE.github}/commits?author=${author}`} target="_blank" rel="noopener noreferrer">
+                        {author}
+                      </a>
+                    </span>
+                  ))}
+                </p>
+              )
+            }
+            {updated && <p class="skill-hero__updated">Actualizada el {updated}</p>}
+          </div>
+        </div>
+
+        <p class="skill-hero__desc">{skill.data.description}</p>
+
+        <div class="skill-hero__install">
+          <p class="skill-hero__install-label">Instalación</p>
+          <PackageTabs command={`fwskills add ${skillSlug(skill)}`} label="Comando de instalación" />
+          <div class="skill-hero__manual">
+            <p>¿Sin gestor? Copialo a mano: la skill se instala en la carpeta del agente correspondiente.</p>
+            <CodeBlock code={`# dentro de tu skill\nmkdir -p .opencode/skills/${skill.data.category}\ncp -r ${skill.data.name} .opencode/skills/${skill.data.category}/`} lang="bash" nocopy />
+          </div>
+        </div>
+      </header>
+
+      <div class={`skill-layout ${headings.length > 0 ? 'skill-layout--toc' : ''}`}>
+        <article class="skill-content">
+          <div class="skill-body" set:html={bodyHtml} />
+        </article>
+
+        {
+          headings.length > 0 && (
+            <aside class="skill-toc" aria-label="Tabla de contenidos">
+              <p class="skill-toc__label">En esta skill</p>
+              <ol class="skill-toc__list">
+                {headings
+                  .filter((h) => h.depth <= 3)
+                  .map((h) => (
+                    <li class={`skill-toc__item skill-toc__item--h${h.depth}`}>
+                      <a href={`#${h.slug}`}>{h.text}</a>
+                    </li>
+                  ))}
+              </ol>
+            </aside>
+          )
+        }
+      </div>
+
+      <section class="skill-files">
+        <h2 class="section-heading section-heading--start">Archivos de la skill</h2>
+        <p class="skill-files__desc">
+          Cada skill es una carpeta en el repositorio. Los archivos son públicos y editables.
+        </p>
+        <ul class="skill-files__tree">
+          {
+            files.map((file) => (
+              <li>
+                <a href={repoFile(`skills/${skill.data.category}/${skill.data.name}/${file.replace(/\/$/, '')}`)}>
+                  <span class="skill-files__icon" aria-hidden="true">
+                    {file.endsWith('/') ? '📁' : '📄'}
+                  </span>
+                  <code>{file}</code>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section class="skill-actions">
+        <div class="skill-actions__row">
+          <a class="btn btn-secondary" href={repoFile(`skills/${skill.data.category}/${skill.data.name}`)} target="_blank" rel="noopener noreferrer">
+            Ver en GitHub
+          </a>
+          <a class="btn btn-secondary" href={repoEdit(`skills/${skill.data.category}/${skill.data.name}/SKILL.md`)} target="_blank" rel="noopener noreferrer">
+            Editar esta skill
+          </a>
+          <a
+            class="btn btn-ghost"
+            href={`${SITE.issues}?title=Problema con la skill ${skill.data.name}&body=${encodeURIComponent(`## Qué pasa\n\n(Skill: \`${installCommand(skill)}\`)`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Reportar un problema
+          </a>
+        </div>
+      </section>
+
+      {
+        related.length > 0 && (
+          <section class="skill-related">
+            <h2 class="section-heading section-heading--start">Skills relacionadas</h2>
+            <div class="grid-3">
+              {related.map((s) => (
+                <SkillCard skill={s} />
+              ))}
+            </div>
+          </section>
+        )
+      }
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .skill-hero {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-block: var(--space-lg) var(--space-2xl);
+  }
+
+  .skill-hero__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .skill-hero__name {
+    font-family: var(--font-mono);
+    font-size: var(--text-h1);
+    line-height: 1.15;
+  }
+
+  .skill-hero__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-2xs);
+  }
+
+  .skill-hero__meta {
+    text-align: end;
+    font-size: var(--text-caption);
+    color: var(--text-muted);
+  }
+
+  .skill-hero__authors a {
+    font-weight: 500;
+  }
+
+  .skill-hero__desc {
+    font-size: var(--text-body);
+    color: var(--text-secondary);
+    max-width: 56ch;
+  }
+
+  .skill-hero__install {
+    padding: var(--space-sm);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    max-width: var(--text-column);
+    margin-block-start: var(--space-md);
+  }
+
+  .skill-hero__install-label {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-block-end: var(--space-2xs);
+  }
+
+  .skill-hero__manual {
+    margin-block-start: var(--space-xs);
+    font-size: var(--text-caption);
+    color: var(--text-muted);
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  .skill-hero__manual .code {
+    margin-block-start: var(--space-2xs);
+  }
+
+  .skill-layout {
+    display: grid;
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  .skill-layout--toc {
+    grid-template-columns: 1fr 260px;
+  }
+
+  .skill-content {
+    max-width: var(--text-column);
+    min-width: 0;
+  }
+
+  /* Prose styles for the rendered SKILL.md body. */
+  .skill-content :global(h2),
+  .skill-content :global(h3),
+  .skill-content :global(h4) {
+    margin-block: var(--space-lg) var(--space-2xs);
+    scroll-margin-top: calc(var(--header-height) + var(--space-md));
+  }
+
+  .skill-content :global(h2) {
+    font-size: var(--text-h3);
+  }
+
+  .skill-content :global(h3) {
+    font-size: var(--text-h4);
+  }
+
+  .skill-content :global(p),
+  .skill-content :global(ul),
+  .skill-content :global(ol) {
+    margin-block-end: var(--space-sm);
+    color: var(--text-secondary);
+    font-size: var(--text-body-sm);
+  }
+
+  .skill-content :global(ul),
+  .skill-content :global(ol) {
+    padding-inline-start: var(--space-md);
+    list-style: disc;
+  }
+
+  .skill-content :global(ol) {
+    list-style: decimal;
+  }
+
+  .skill-content :global(li) {
+    margin-block-end: var(--space-2xs);
+  }
+
+  .skill-content :global(pre.shiki),
+  .skill-content :global(.code) {
+    margin-block: var(--space-md);
+  }
+
+  .skill-toc {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-md));
+    font-size: var(--text-caption);
+  }
+
+  .skill-toc__label {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-block-end: var(--space-2xs);
+  }
+
+  .skill-toc__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    border-inline-start: 1px solid var(--border);
+  }
+
+  .skill-toc__item a {
+    display: block;
+    padding-inline-start: var(--space-xs);
+    color: var(--text-secondary);
+    border-inline-start: 2px solid transparent;
+    margin-inline-start: -1px;
+  }
+
+  .skill-toc__item a:hover {
+    color: var(--accent);
+    border-inline-start-color: var(--accent);
+  }
+
+  .skill-toc__item--h2 {
+    margin-block-start: var(--space-2xs);
+  }
+
+  .skill-toc__item--h3 {
+    padding-inline-start: var(--space-xs);
+  }
+
+    .skill-files,
+  .skill-actions,
+  .skill-related {
+    margin-block-start: var(--space-2xl);
+  }
+
+  .skill-files__desc {
+    color: var(--text-secondary);
+    font-size: var(--text-body-sm);
+    margin-block-end: var(--space-sm);
+  }
+
+  .skill-files__tree {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+  }
+
+  .skill-files__tree a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding: var(--space-2xs) var(--space-xs);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: var(--text-caption);
+  }
+
+  .skill-files__tree a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .skill-files__icon {
+    font-size: 0.9em;
+  }
+
+  .skill-actions__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+  }
+
+  .skill-related {
+    padding-block-start: var(--space-sm);
+    border-block-start: 1px solid var(--border);
+  }
+
+  @media (max-width: 768px) {
+    .skill-layout--toc {
+      grid-template-columns: 1fr;
+    }
+
+    .skill-toc {
+      position: static;
+      order: -1;
+      border-block-end: 1px solid var(--border);
+      padding-block-end: var(--space-sm);
+      margin-block-end: var(--space-lg);
+    }
+
+    .skill-hero__meta {
+      text-align: start;
+    }
+  }
+</style>

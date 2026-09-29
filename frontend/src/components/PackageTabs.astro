@@ -1,0 +1,165 @@
+---
+import { PACKAGE_MANAGERS, PM_STORAGE_KEY, type PackageManagerId } from '../lib/site';
+import CodeBlock from './CodeBlock.astro';
+
+/**
+ * Package manager tabs.
+ *
+ * The choice is remembered across pages (localStorage) and synchronised
+ * across every tab group on the page by a single delegated listener. One
+ * listener, not one per group: the bug where two groups on the same page
+ * disagree is exactly what a shared listener prevents.
+ */
+export interface Props {
+  /** Command without a runner, e.g. "fwskills add specs/create-specs". */
+  command: string;
+  label?: string;
+}
+
+const { command, label } = Astro.props;
+const groupId = `pmtabs-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class="pmtabs" data-pmtabs data-pm-command={command}>
+  <div class="pmtabs__list" role="tablist" aria-label={label ?? 'Gestor de paquetes'}>
+    {
+      PACKAGE_MANAGERS.map((pm, index) => (
+        <button
+          class="pmtabs__tab"
+          type="button"
+          role="tab"
+          id={`${groupId}-tab-${pm.id}`}
+          aria-controls={`${groupId}-panel-${pm.id}`}
+          aria-selected={index === 0 ? 'true' : 'false'}
+          tabindex={index === 0 ? 0 : -1}
+          data-pm-id={pm.id}
+        >
+          {pm.label}
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    PACKAGE_MANAGERS.map((pm, index) => (
+      <div
+        class="pmtabs__panel"
+        role="tabpanel"
+        id={`${groupId}-panel-${pm.id}`}
+        aria-labelledby={`${groupId}-tab-${pm.id}`}
+        data-pm-panel={pm.id}
+        hidden={index !== 0}
+      >
+        <CodeBlock code={pm.run(command)} lang="bash" label={`Comando para ${pm.label}`} />
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  const KEY = 'fwskills:pm';
+
+  function read(): string | null {
+    try {
+      return localStorage.getItem(KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  function write(id: string): void {
+    try {
+      localStorage.setItem(KEY, id);
+    } catch {
+      // Storage blocked: the selection still applies for this page view.
+    }
+  }
+
+  function select(group: HTMLElement, id: string): void {
+    for (const tab of group.querySelectorAll<HTMLButtonElement>('[data-pm-id]')) {
+      const active = tab.dataset.pmId === id;
+      tab.setAttribute('aria-selected', String(active));
+      tab.tabIndex = active ? 0 : -1;
+    }
+    for (const panel of group.querySelectorAll<HTMLElement>('[data-pm-panel]')) {
+      panel.hidden = panel.dataset.pmPanel !== id;
+    }
+  }
+
+  function selectEverywhere(id: string): void {
+    for (const group of document.querySelectorAll<HTMLElement>('[data-pmtabs]')) {
+      select(group, id);
+    }
+  }
+
+  // Stored value wins on load; otherwise the server-rendered first tab stands.
+  const stored = read();
+  if (stored) selectEverywhere(stored);
+
+  document.addEventListener('click', (event) => {
+    const tab = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>('[data-pm-id]');
+    if (!tab?.dataset.pmId) return;
+    write(tab.dataset.pmId);
+    selectEverywhere(tab.dataset.pmId);
+  });
+
+  // Arrow-key navigation within a tablist, per the WAI-ARIA pattern.
+  document.addEventListener('keydown', (event) => {
+    const tab = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>('[data-pm-id]');
+    if (!tab || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+
+    const tabs = [...tab.closest('[role="tablist"]')!.querySelectorAll<HTMLButtonElement>('[data-pm-id]')];
+    const current = tabs.indexOf(tab);
+    let next = current;
+
+    if (event.key === 'ArrowLeft') next = (current - 1 + tabs.length) % tabs.length;
+    if (event.key === 'ArrowRight') next = (current + 1) % tabs.length;
+    if (event.key === 'Home') next = 0;
+    if (event.key === 'End') next = tabs.length - 1;
+
+    event.preventDefault();
+    const target = tabs[next]!;
+    if (target.dataset.pmId) {
+      write(target.dataset.pmId);
+      selectEverywhere(target.dataset.pmId);
+      target.focus();
+    }
+  });
+</script>
+
+<style>
+  .pmtabs__list {
+    display: inline-flex;
+    gap: var(--space-3xs);
+    padding: var(--space-3xs);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    margin-block-end: var(--space-2xs);
+  }
+
+  .pmtabs__tab {
+    padding: var(--space-3xs) var(--space-sm);
+    font-size: var(--text-caption);
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    border-radius: var(--radius-pill);
+    transition:
+      background-color var(--duration-fast) ease,
+      color var(--duration-fast) ease;
+  }
+
+  .pmtabs__tab:hover {
+    color: var(--text);
+  }
+
+  .pmtabs__tab[aria-selected='true'] {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .pmtabs__panel[hidden] {
+    display: none;
+  }
+</style>

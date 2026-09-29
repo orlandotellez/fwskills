@@ -1,0 +1,183 @@
+---
+/**
+ * Accordion. The `+` rotates 45° into an `×`; the panel fades and slides.
+ *
+ * `data-exclusive` limits a group to one open panel at a time, which is what
+ * the FAQ sections and the installation troubleshooting want.
+ */
+export interface Props {
+  items: { question: string; content: string }[];
+  exclusive?: boolean;
+  /** Optional heading rendered above the group. */
+  title?: string;
+}
+
+const { items, exclusive = true, title } = Astro.props;
+const group = `acc-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+{
+  title && <h2 class="section-heading section-heading--start">{title}</h2>
+}
+
+<div class="accordion" data-accordion data-exclusive={String(exclusive)}>
+  {
+    items.map((item, index) => {
+      const panelId = `${group}-panel-${index}`;
+      const buttonId = `${group}-button-${index}`;
+      return (
+        <div class="accordion__item">
+          <h3 class="accordion__heading">
+            <button
+              class="accordion__trigger"
+              type="button"
+              id={buttonId}
+              aria-expanded="false"
+              aria-controls={panelId}
+            >
+              <span class="accordion__question">{item.question}</span>
+              <svg
+                class="accordion__icon"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+          </h3>
+          <div class="accordion__panel" id={panelId} role="region" aria-labelledby={buttonId} hidden>
+            <div class="accordion__content" set:html={item.content} />
+          </div>
+        </div>
+      );
+    })
+  }
+</div>
+
+<style>
+  .accordion {
+    display: flex;
+    flex-direction: column;
+    border-block-start: 1px solid var(--border);
+  }
+
+  .accordion__item {
+    border-block-end: 1px solid var(--border);
+  }
+
+  .accordion__heading {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  .accordion__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    width: 100%;
+    padding: var(--space-md) 0;
+    text-align: start;
+  }
+
+  .accordion__question {
+    font-size: var(--text-h4);
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .accordion__trigger:hover .accordion__question {
+    color: var(--accent);
+  }
+
+  .accordion__icon {
+    flex-shrink: 0;
+    color: var(--accent);
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .accordion__trigger[aria-expanded='true'] .accordion__icon {
+    transform: rotate(45deg);
+  }
+
+  .accordion__panel[hidden] {
+    display: none;
+  }
+
+  .accordion__content {
+    padding-block-end: var(--space-md);
+    color: var(--text-secondary);
+    font-size: var(--text-body-sm);
+    max-width: var(--text-column);
+  }
+
+  .accordion__content :global(p) + :global(p),
+  .accordion__content :global(p) + :global(ul),
+  .accordion__content :global(ul) + :global(p) {
+    margin-block-start: var(--space-2xs);
+  }
+
+  .accordion__content :global(code) {
+    white-space: normal;
+  }
+</style>
+
+<script>
+  // One delegated listener for every accordion on the page.
+  document.addEventListener('click', (event) => {
+    const trigger = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>(
+      '.accordion__trigger',
+    );
+    if (!trigger) return;
+
+    const group = trigger.closest<HTMLElement>('[data-accordion]');
+    if (!group) return;
+
+    const panel = document.getElementById(trigger.getAttribute('aria-controls') ?? '');
+    if (!panel) return;
+
+    const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+
+    if (group.dataset.exclusive === 'true' && !isOpen) {
+      for (const other of group.querySelectorAll<HTMLButtonElement>('.accordion__trigger')) {
+        if (other === trigger) continue;
+        other.setAttribute('aria-expanded', 'false');
+        const otherPanel = document.getElementById(other.getAttribute('aria-controls') ?? '');
+        if (otherPanel) otherPanel.hidden = true;
+      }
+    }
+
+    trigger.setAttribute('aria-expanded', String(!isOpen));
+    panel.hidden = isOpen;
+  });
+
+  // Keyboard: Up/Down move between triggers, Home/End jump to the ends.
+  document.addEventListener('keydown', (event) => {
+    const trigger = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>(
+      '.accordion__trigger',
+    );
+    if (!trigger) return;
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+
+    const group = trigger.closest<HTMLElement>('[data-accordion]');
+    const triggers = [...(group?.querySelectorAll<HTMLButtonElement>('.accordion__trigger') ?? [])];
+    if (triggers.length === 0) return;
+
+    const current = triggers.indexOf(trigger);
+    let next = current;
+    if (event.key === 'ArrowDown') next = (current + 1) % triggers.length;
+    if (event.key === 'ArrowUp') next = (current - 1 + triggers.length) % triggers.length;
+    if (event.key === 'Home') next = 0;
+    if (event.key === 'End') next = triggers.length - 1;
+
+    event.preventDefault();
+    triggers[next]?.focus();
+  });
+</script>

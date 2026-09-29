@@ -1,0 +1,448 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import SkillCard from '../../components/SkillCard.astro';
+import { getCategories, getSkills } from '../../lib/skills';
+
+const [categories, skills] = await Promise.all([getCategories(), getSkills()]);
+
+// All tags, sorted by frequency then name. Derived, never hardcoded.
+const tagCounts = new Map<string, number>();
+for (const skill of skills) {
+  for (const tag of skill.data.tags) {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+}
+const tags = [...tagCounts.entries()]
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  .map(([tag]) => tag);
+
+const sorts = [
+  { id: 'az', label: 'Alfabético' },
+  { id: 'recent', label: 'Más recientes' },
+  { id: 'featured', label: 'Destacadas' },
+] as const;
+---
+
+<Layout title="Catálogo de skills — fwskills" description="Explorá el catálogo de skills comunitarias para agentes de IA, filtrables por categoría, tag y nombre.">
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs items={[{ label: 'Inicio', href: '/' }, { label: 'Skills' }]} />
+
+      <h1 class="page-title">Catálogo de skills</h1>
+      <p class="page-subtitle">
+        {skills.length} skills, {categories.length} categorías. Agregar una skill es agregar
+        una carpeta: este catálogo se genera solo en cada build.
+      </p>
+
+      <!--
+        Filtering is client-side over the server-rendered cards. The state
+        lives in the URL (?categoria=&q=&tag=&sort=) and is shareable, so
+        "look at these filters" does not need a screenshot.
+      -->
+      <div class="filters" data-catalog>
+        <div class="filters__row">
+          <div class="filters__search">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="m20 20-3.5-3.5"></path>
+            </svg>
+            <input
+              class="filters__input"
+              type="search"
+              data-filter="q"
+              placeholder="Buscar por nombre o descripción…"
+              aria-label="Buscar por nombre o descripción"
+            />
+          </div>
+
+          <label class="filters__sort">
+            <span class="filters__sort-label">Orden</span>
+            <select data-filter="sort">
+              {sorts.map((s) => <option value={s.id}>{s.label}</option>)}
+            </select>
+          </label>
+        </div>
+
+        <div class="filters__chips" role="group" aria-label="Filtrar por categoría">
+          <button
+            class="chip"
+            type="button"
+            data-category=""
+            data-filter="categoria"
+            aria-pressed="true"
+          >
+            Todas <span class="chip__count">{skills.length}</span>
+          </button>
+          {
+            categories.map((cat) => (
+              <button
+                class="chip"
+                type="button"
+                data-category={cat.slug}
+                data-filter="categoria"
+                aria-pressed="false"
+              >
+                {cat.name} <span class="chip__count">{cat.count}</span>
+              </button>
+            ))
+          }
+        </div>
+
+        {
+          tags.length > 0 && (
+            <div class="filters__tags" role="group" aria-label="Filtrar por tag">
+              {tags.slice(0, 12).map((tag) => (
+                <button class="tag tag--fil" type="button" data-tag={tag} data-filter="tag" aria-pressed="false">
+                  {tag}
+                </button>
+              ))}
+            </div>
+          )
+        }
+
+        <p class="filters__result" data-result aria-live="polite"></p>
+      </div>
+
+      <div class="catalog-grid" data-catalog-grid>
+        {
+          skills.map((skill) => (
+            <div
+              data-card
+              data-name={skill.data.name}
+              data-desc={skill.data.description}
+              data-category={skill.data.category}
+              data-tags={skill.data.tags.join(' ')}
+              data-featured={String(skill.data.featured)}
+              data-updated={(skill.data.updatedAt ?? new Date(0)).toISOString()}
+            >
+              <SkillCard skill={skill} />
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="catalog-empty" data-empty hidden>
+        <p class="catalog-empty__title">No hay resultados</p>
+        <p class="catalog-empty__body">Probá con otra búsqueda o limpiá los filtros.</p>
+        <button class="btn btn-secondary btn--sm" type="button" data-clear>Limpiar filtros</button>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  interface Filters {
+    categoria: string;
+    q: string;
+    tag: string;
+    sort: 'az' | 'recent' | 'featured';
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-catalog]')!;
+  const grid = document.querySelector<HTMLElement>('[data-catalog-grid]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const result = document.querySelector<HTMLElement>('[data-result]')!;
+  const cards = [...grid.querySelectorAll<HTMLElement>('[data-card]')];
+  const elements = [...root.querySelectorAll<HTMLElement>('[data-filter]')];
+  const clear = document.querySelector<HTMLButtonElement>('[data-clear]')!;
+
+  const fmt = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+
+  function readUrl(): Filters {
+    const params = new URLSearchParams(window.location.search);
+    const sort = params.get('sort');
+    return {
+      categoria: params.get('categoria') ?? '',
+      q: params.get('q') ?? '',
+      tag: params.get('tag') ?? '',
+      sort: sort === 'recent' || sort === 'featured' ? sort : 'az',
+    };
+  }
+
+  let filters = readUrl();
+
+  function syncControls(): void {
+    for (const el of elements) {
+      const key = el.dataset.filter as keyof Filters;
+      const value = filters[key];
+      if (el instanceof HTMLInputElement) el.value = value as string;
+      if (el instanceof HTMLSelectElement) el.value = value as string;
+      if (el.dataset.category !== undefined) {
+        el.setAttribute('aria-pressed', String(el.dataset.category === filters.categoria));
+      }
+      if (el.dataset.tag !== undefined) {
+        el.setAttribute('aria-pressed', String(el.dataset.tag === filters.tag));
+      }
+    }
+  }
+
+  function writeUrl(): void {
+    const params = new URLSearchParams();
+    if (filters.categoria) params.set('categoria', filters.categoria);
+    if (filters.q) params.set('q', filters.q);
+    if (filters.tag) params.set('tag', filters.tag);
+    if (filters.sort !== 'az') params.set('sort', filters.sort);
+    const next = `${window.location.pathname}${params.toString() ? `?${params}` : ''}`;
+    window.history.replaceState(null, '', next);
+  }
+
+  function apply(): void {
+    const q = filters.q.toLowerCase().trim();
+    let visible = cards;
+
+    if (filters.categoria) {
+      visible = visible.filter((card) => card.dataset.category === filters.categoria);
+    }
+    if (filters.tag) {
+      visible = visible.filter((card) => card.dataset.tags?.split(' ').includes(filters.tag));
+    }
+    if (q) {
+      visible = visible.filter((card) =>
+        `${card.dataset.name} ${card.dataset.desc}`.toLowerCase().includes(q),
+      );
+    }
+
+    if (filters.sort === 'recent') {
+      visible = [...visible].sort((a, b) => (b.dataset.updated ?? '').localeCompare(a.dataset.updated ?? ''));
+    } else if (filters.sort === 'featured') {
+      visible = [...visible].sort(
+        (a, b) => Number(b.dataset.featured) - Number(a.dataset.featured) || a.dataset.name!.localeCompare(b.dataset.name!),
+      );
+    } else {
+      visible = [...visible].sort((a, b) => a.dataset.name!.localeCompare(b.dataset.name!));
+    }
+
+    for (const card of cards) card.hidden = !visible.includes(card);
+    empty.hidden = visible.length > 0;
+    result.textContent = `${visible.length} resultado${visible.length === 1 ? '' : 's'}`;
+
+    writeUrl();
+    syncControls();
+  }
+
+  root.addEventListener('click', (event) => {
+    const chip = (event.target as HTMLElement).closest<HTMLElement>('[data-category], [data-tag]');
+    if (!chip) return;
+
+    if (chip.dataset.category !== undefined) filters.categoria = chip.dataset.category!;
+    if (chip.dataset.tag !== undefined) filters.tag = filters.tag === chip.dataset.tag ? '' : chip.dataset.tag!;
+    apply();
+  });
+
+  root.addEventListener('input', (event) => {
+    const input = (event.target as HTMLInputElement).closest<HTMLInputElement>('[data-filter="q"]');
+    if (!input) return;
+    filters.q = input.value;
+    apply();
+  });
+
+  root.addEventListener('change', (event) => {
+    const select = (event.target as HTMLSelectElement).closest<HTMLSelectElement>('[data-filter="sort"]');
+    if (!select) return;
+    filters.sort = select.value as Filters['sort'];
+    apply();
+  });
+
+  clear.addEventListener('click', () => {
+    filters = { categoria: '', q: '', tag: '', sort: 'az' };
+    apply();
+  });
+
+  // The URL is the source of truth: back/forward must re-filter.
+  window.addEventListener('popstate', () => {
+    filters = readUrl();
+    apply();
+  });
+
+  // Initial render with the URL state (shared links land filtered).
+  if (Object.values(filters).some((v) => v !== '' && v !== 'az')) {
+    apply();
+  } else {
+    syncControls();
+  }
+</script>
+
+<style>
+  .page-title {
+    margin-block-start: var(--space-2xs);
+  }
+
+  .page-subtitle {
+    color: var(--text-secondary);
+    max-width: 60ch;
+    margin-block: var(--space-2xs) var(--space-lg);
+  }
+
+  .filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-block-end: var(--space-lg);
+  }
+
+  .filters__row {
+    display: flex;
+    gap: var(--space-2xs);
+    align-items: stretch;
+  }
+
+  .filters__search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    color: var(--text-muted);
+  }
+
+  .filters__search svg {
+    position: absolute;
+    inset-inline-start: var(--space-xs);
+  }
+
+  .filters__input {
+    width: 100%;
+    height: 44px;
+    padding-inline: calc(var(--space-xl) + var(--space-3xs)) var(--space-sm);
+    border-radius: var(--radius-sm);
+  }
+
+  .filters__sort {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+
+  .filters__sort-label {
+    font-size: var(--text-caption);
+    color: var(--text-muted);
+  }
+
+  .filters__sort select {
+    height: 44px;
+    padding-inline: var(--space-sm);
+    border-radius: var(--radius-sm);
+  }
+
+  .filters__chips {
+    display: flex;
+    gap: var(--space-2xs);
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding: var(--space-2xs) var(--space-sm);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-caption);
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    transition:
+      background-color var(--duration-fast) ease,
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease;
+  }
+
+  .chip:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .chip[aria-pressed='true'] {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: var(--accent-border);
+  }
+
+  .chip__count {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.75;
+    font-size: 0.9em;
+  }
+
+  .filters__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+  }
+
+  .tag--fil {
+    cursor: pointer;
+    border: 1px solid var(--border-input);
+    transition:
+      background-color var(--duration-fast) ease,
+      color var(--duration-fast) ease;
+  }
+
+  .tag--fil:hover {
+    color: var(--text);
+  }
+
+  .tag--fil[aria-pressed='true'] {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .filters__result {
+    font-size: var(--text-caption);
+    color: var(--text-muted);
+  }
+
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+  }
+
+  .catalog-empty {
+    text-align: center;
+    padding-block: var(--space-3xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+
+  .catalog-empty[hidden] {
+    display: none;
+  }
+
+  .catalog-empty__title {
+    font-size: var(--text-h3);
+  }
+
+  .catalog-empty__body {
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 1024px) {
+    .catalog-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .catalog-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .filters__row {
+      flex-direction: column;
+    }
+  }
+</style>

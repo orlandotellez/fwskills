@@ -1,0 +1,144 @@
+---
+import { highlightInline } from '../lib/highlight';
+
+/**
+ * Code block. Language label, copy button with a confirmed state, internal
+ * horizontal scroll, syntax highlighting.
+ *
+ * `overflow-x: auto` lives here and never on the page: a long command scrolls
+ * inside its own box instead of dragging the whole document sideways.
+ */
+export interface Props {
+  code: string;
+  lang?: string;
+  /** Shown instead of the language label — used in the docs. */
+  filename?: string;
+  /** Hide the copy button for purely illustrative snippets. */
+  nocopy?: boolean;
+  /** Accessible name for the copy button. */
+  label?: string;
+}
+
+const { code, lang = 'bash', filename, nocopy = false, label = 'Comando' } = Astro.props;
+
+// Build-time highlight, using the same theme object the markdown pipeline
+// uses. Unknown languages degrade to escaped plain text, never to a throw.
+const highlighted = await highlightInline(code, lang);
+---
+
+<div class="code" data-code>
+  <div class="code__bar">
+    <span class="code__label">{filename ?? lang}</span>
+    {
+      !nocopy && (
+        <button class="code__copy" type="button" data-copy data-code-value={code} data-copy-label={label}>
+          <span data-copy-text>Copiar</span>
+        </button>
+      )
+    }
+  </div>
+  <pre class="code__pre"><code set:html={highlighted} /></pre>
+</div>
+
+<script>
+  // One delegated listener for every copy button on the page.
+  const COPY_MS = 2000;
+
+  document.addEventListener('click', async (event) => {
+    const button = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>('[data-copy]');
+    if (!button) return;
+
+    const value = button.dataset.codeValue ?? '';
+    const text = button.querySelector<HTMLElement>('[data-copy-text]');
+
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      // Clipboard API needs a secure context; fall back to a selection copy.
+      const area = document.createElement('textarea');
+      area.value = value;
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.append(area);
+      area.select();
+      document.execCommand('copy');
+      area.remove();
+    }
+
+    if (!text) return;
+    const previous = text.textContent;
+    text.textContent = '¡Copiado!';
+    button.classList.add('is-copied');
+    button.setAttribute('aria-label', 'Copiado al portapapeles');
+
+    window.setTimeout(() => {
+      text.textContent = previous;
+      button.classList.remove('is-copied');
+      button.setAttribute('aria-label', `${button.dataset.copyLabel ?? 'Comando'}: copiar`);
+    }, COPY_MS);
+  });
+</script>
+
+<style>
+  .code {
+    background: var(--surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .code__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: var(--space-2xs) var(--space-2xs) var(--space-2xs) var(--space-sm);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .code__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+    color: var(--text-muted);
+  }
+
+  .code__copy {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-3xs) var(--space-2xs);
+    font-size: var(--text-caption);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-sm);
+    transition:
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease;
+  }
+
+  .code__copy:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  /* Success is the one place colour means "it worked". */
+  .code__copy.is-copied {
+    color: var(--success);
+    border-color: var(--success);
+  }
+
+  .code__pre {
+    margin: 0;
+    padding: var(--space-sm) var(--space-md);
+    overflow-x: auto;
+    font-size: var(--text-code);
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .code__pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    white-space: pre;
+  }
+</style>

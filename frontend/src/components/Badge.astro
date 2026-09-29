@@ -1,0 +1,64 @@
+---
+/**
+ * Badges. Four variants, all radius-pill, all caption size.
+ *
+ * Colour is metadata here, not decoration: the category variant is the only
+ * one that carries a hue, and it is always paired with a readable text colour
+ * (on-accent) rather than a tinted background.
+ */
+export type BadgeVariant = 'category' | 'version' | 'compatibility' | 'author';
+
+export interface Props {
+  variant?: BadgeVariant;
+  href?: string;
+  title?: string;
+  class?: string;
+}
+
+const { variant = 'version', href, title, class: className } = Astro.props;
+const Element = href ? 'a' : 'span';
+---
+
+<Element
+  class:list={['badge', `badge--${variant}`, className]}
+  href={href}
+  title={title}
+  rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+  target={href?.startsWith('http') ? '_blank' : undefined}
+>
+  <slot />
+</Element>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3xs);
+    padding: var(--space-3xs) var(--space-xs);
+    font-size: var(--text-caption);
+    font-weight: 500;
+    line-height: 1.4;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+    background: var(--surface-elevated);
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  /* Category carries the only hue, and always with a measured text colour. */
+  .badge--category {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: var(--accent-border);
+    font-weight: 600;
+  }
+
+  .badge--author {
+    color: var(--text-muted);
+  }
+
+  a.badge:hover {
+    color: var(--accent-hover);
+    border-color: var(--accent);
+  }
+</style>

@@ -1,0 +1,70 @@
+---
+export interface Crumb {
+  label: string;
+  href?: string;
+}
+
+/**
+ * Breadcrumbs. Present on every page except Inicio. The last crumb is never a
+ * link: it is where you already are.
+ */
+export interface Props {
+  items: Crumb[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="Ruta de navegación">
+  <ol class="crumbs">
+    {
+      items.map((item, index) => {
+        const isLast = index === items.length - 1;
+        return (
+          <li class="crumbs__item">
+            {item.href && !isLast ? (
+              <a href={item.href}>{item.label}</a>
+            ) : (
+              <span aria-current={isLast ? 'page' : undefined}>{item.label}</span>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>
+
+<style>
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-size: var(--text-caption);
+    color: var(--text-muted);
+  }
+
+  .crumbs__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+
+  /* The separator is decorative: the nav already reads as a sequence. */
+  .crumbs__item:not(:first-child)::before {
+    content: '/';
+    color: var(--border-strong);
+  }
+
+  .crumbs a {
+    color: var(--text-muted);
+  }
+
+  .crumbs a:hover {
+    color: var(--accent);
+  }
+
+  .crumbs [aria-current='page'] {
+    color: var(--text-secondary);
+  }
+</style>
