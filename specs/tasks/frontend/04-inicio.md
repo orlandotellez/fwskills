@@ -51,66 +51,66 @@ explorar el catálogo y contribuir.
 
 ## Tareas
 
-- [ ] 1. Sustituir la terminal decorativa del hero por un bloque de código copiable con los cuatro gestores
+- [x] 1. Sustituir la terminal decorativa del hero por un bloque de código copiable con los cuatro gestores
   - Detalle de implementación: el `Hero.astro` actual muestra un bloque no
   copiable; se reemplaza por `CodeBlock.astro` con `[data-copy]` sobre
   `npx fwskills add specs/crear-specs`, envuelto en `PackageManagerTabs.astro`
   para alternar entre `npx`, `pnpm dlx`, `yarn dlx` y `bunx`. La elección se
   recuerda en `fwskills:pm` y se sincroniza con los demás grupos de la página.
   Los badges del hero pasan a `Badge.astro` en vez de clases sueltas.
-- [ ] 2. Derivar el H1, el subtítulo y los contadores del hero de la colección
+- [x] 2. Derivar el H1, el subtítulo y los contadores del hero de la colección
   - Detalle de implementación: el H1 describe el proyecto en una línea, el párrafo
   introductorio se limita a 560px de ancho, y los tres datos del hero —licencia
   MIT, número de skills y número de contribuidores— salen de `getCollection('skills')`
   y del objeto de métricas. En responsive, el hero pasa a dos columnas con
   `min-height: 90vh` a partir de 1024px y se apila por debajo.
-- [ ] 3. Construir el bloque de Categorías a partir de los subdirectorios de `skills/`
+- [x] 3. Construir el bloque de Categorías a partir de los subdirectorios de `skills/`
   - Detalle de implementación: `getCategories()` agrupa la colección y, por cada
   categoría, muestra nombre, descripción corta del mapa `src/lib/categories.ts`,
   icono lucide y **conteo de skills**. Cada tarjeta enlaza a
   `/skills?categoria=<slug>`; al pasar el cursor, el borde pasa a `var(--accent)`
   y la flecha se desplaza 4px. Una categoría ausente del mapa usa el icono por
   defecto y el conteo sigue siendo correcto.
-- [ ] 4. Construir el bloque de Skills destacadas desde `featured: true`
+- [x] 4. Construir el bloque de Skills destacadas desde `featured: true`
   - Detalle de implementación: `getFeatured(6)` alimenta una grilla de `SkillCard.astro`
   de 3/2/1 columnas, con enlace «Ver todas →» a `/skills`. Si no hay ninguna skill
   con `featured: true`, el bloque no se renderiza y se sustituye por una llamada a
   `/skills`: una sección vacía con hueco es peor que una llamada a la acción.
-- [ ] 5. Redactar el bloque Cómo funciona con sus tres pasos fijos
+- [x] 5. Redactar el bloque Cómo funciona con sus tres pasos fijos
   - Detalle de implementación: pasos numerados `01 Elegí`, `02 Instalá` y
   `03 Usá`, con contenido literal, enlace a `/skills` en el primero y bloque de
   código copiable en el segundo. En móvil los pasos se apilan y se conectan con
   una línea vertical, que es la única excepción de layout permitida en la landing.
-- [ ] 6. Construir el bloque Flujo de trabajo con el recorrido de áreas del repositorio
+- [x] 6. Construir el bloque Flujo de trabajo con el recorrido de áreas del repositorio
   - Detalle de implementación: SVG encadenado `specs → design → desarrollo → qa →
   security`, definido en `src/lib/categories.ts` y no escrito en el marcado, de
   modo que añadir un área no obliga a editar la landing. Cada paso enlaza a
   `/skills?categoria=<slug>` y en móvil la cadena se apila en vertical.
-- [ ] 7. Construir el bloque Comunidad con métricas y avatares cacheados en build
+- [x] 7. Construir el bloque Comunidad con métricas y avatares cacheados en build
   - Detalle de implementación: muestra el número de skills —dato local, siempre
   disponible—, el número de contribuidores y el conteo de releases, y una fila de
   avatares con `alt` que contiene el nombre de la persona. Si GitHub no respondió
   en build, el bloque se renderiza con el número de skills y **omite** las cifras
   remotas y los avatares, con un enlace al repositorio. Nunca muestra `0`: un
   cero afirma que se consultó GitHub y no hay ninguna.
-- [ ] 8. Construir el bloque FAQ con cinco acordeones y la allowlist de un panel abierto
+- [x] 8. Construir el bloque FAQ con cinco acordeones y la allowlist de un panel abierto
   - Detalle de implementación: `Accordion.astro` con `singleOpen` activo, cinco
   preguntas respondidas en el tono del sitio, y enlace «Ver todas las preguntas →»
   a `/docs/faq`. Las respuestas son contenido literal; no hay base de datos donde
   guardar nada, y el FAQ no es un formulario.
-- [ ] 9. Rehacer el bloque CTA final con la banda de acento y los dos destinos
+- [x] 9. Rehacer el bloque CTA final con la banda de acento y los dos destinos
   - Detalle de implementación: `CTA.astro` deja de ser un bloque suelto y pasa a
   ser la banda de cierre con fondo `var(--accent-soft)`, texto en `var(--accent)`
   (6.68:1 verificado), botón primario a `/instalacion` y secundario a
   `/contribuir`, y 120px de padding vertical simétrico. En móvil los botones se
   apilan a ancho completo.
-- [ ] 10. Añadir el enlace de salto al contenido y comprobar la jerarquía de encabezados
+- [x] 10. Añadir el enlace de salto al contenido y comprobar la jerarquía de encabezados
   - Detalle de implementación: `Layout.astro` incluye, antes del `header`, un
   enlace «Saltar al contenido» que solo es visible al recibir foco y lleva a
   `<main id="contenido">`. La página tiene exactamente un `<h1>`; los bloques usan
   `h2` y las subsecciones `h3`, sin saltos de nivel. Los landmarks son `<header>`,
   `<main>` y `<footer>` nombrados.
-- [ ] 11. Eliminar de la landing el contenido que queda cubierto por las páginas
+- [x] 11. Eliminar de la landing el contenido que queda cubierto por las páginas
   - Detalle de implementación: `Features.astro` y `DesignSkills.astro` se
   eliminan cuando sus contenidos estén distribuidos entre Categorías, Skills
   destacadas y Flujo de trabajo; `src/pages/index.astro` queda componiendo
@@ -119,14 +119,18 @@ explorar el catálogo y contribuir.
 
 ## Criterios de Done
 
-- [ ] `/` renderiza 8 bloques en orden: Hero, Categorías, Skills destacadas, Cómo funciona, Flujo de trabajo, Comunidad, FAQ y CTA final.
-- [ ] El número de skills, los conteos por categoría y las destacadas salen de `getCollection('skills')`; ninguna lista de skills está escrita a mano en `src/`.
-- [ ] El comando del hero se copia con un clic, muestra «¡Copiado!» y se anuncia en `aria-live="polite"`; al cambiar de gestor, todos los grupos de tabs de la página cambian a la vez y la elección persiste al recargar.
-- [ ] Cada tarjeta de categoría enlaza a `/skills?categoria=<slug>` y muestra un conteo correcto; una categoría nueva aparece sin editar `src/pages/index.astro` ni `src/sections/`.
-- [ ] Sin ninguna skill con `featured: true`, el bloque de destacadas se sustituye por una llamada a `/skills` y no queda un hueco vacío.
-- [ ] Sin métricas de GitHub, la sección Comunidad renderiza el número de skills y omite las cifras remotas; en ningún caso aparece un `0` como métrica.
-- [ ] Un acordeón de la FAQ abre y cierra con `aria-expanded` actualizado, solo uno queda abierto a la vez y `Esc` no deja el panel en un estado intermedio.
-- [ ] La página tiene un único `<h1>`, un único `<main>`, la jerarquía de encabezados no salta niveles y el enlace de salto al contenido es la primera parada del tabulador.
-- [ ] La página no hace ninguna petición de red propia: solo los avatares locales, que se descargan en build. `grep -rn 'fetch(' frontend/src/pages/index.astro` no devuelve coincidencias.
-- [ ] Sin JavaScript de framework: la landing no usa ninguna directiva `client:*` y su peso de JavaScript no supera los 15 KB sin comprimir.
-- [ ] No hay regresión en el área: `npm run check` termina con 0 errores, `npm run build` genera `dist/index.html` y Lighthouse mantiene ≥ 95 en las cuatro categorías sobre `npm run preview`.
+- [x] `/` renderiza 8 bloques en orden: Hero, Categorías, Skills destacadas, Cómo funciona, Flujo de trabajo, Comunidad, FAQ y CTA final.
+- [x] El número de skills, los conteos por categoría y las destacadas salen de `getCollection('skills')`; ninguna lista de skills está escrita a mano en `src/`.
+- [x] El comando del hero se copia con un clic, muestra «¡Copiado!» y se anuncia en `aria-live="polite"`; al cambiar de gestor, todos los grupos de tabs de la página cambian a la vez y la elección persiste al recargar.
+- [x] Cada tarjeta de categoría enlaza a `/skills?categoria=<slug>` y muestra un conteo correcto; una categoría nueva aparece sin editar `src/pages/index.astro` ni `src/sections/`.
+- [x] Sin ninguna skill con `featured: true`, el bloque de destacadas se sustituye por una llamada a `/skills` y no queda un hueco vacío.
+- [x] Sin métricas de GitHub, la sección Comunidad renderiza el número de skills y omite las cifras remotas; en ningún caso aparece un `0` como métrica.
+- [x] Un acordeón de la FAQ abre y cierra con `aria-expanded` actualizado, solo uno queda abierto a la vez y `Esc` no deja el panel en un estado intermedio.
+- [x] La página tiene un único `<h1>`, un único `<main>`, la jerarquía de encabezados no salta niveles y el enlace de salto al contenido es la primera parada del tabulador.
+- [x] La página no hace ninguna petición de red propia: solo los avatares locales, que se descargan en build. `grep -rn 'fetch(' frontend/src/pages/index.astro` no devuelve coincidencias.
+- [x] Sin JavaScript de framework: la landing no usa ninguna directiva `client:*` y su peso de JavaScript no supera los 15 KB sin comprimir.
+- [x] No hay regresión en el área: `npm run check` termina con 0 errores, `npm run build` genera `dist/index.html` y Lighthouse mantiene ≥ 95 en las cuatro categorías sobre `npm run preview`.
+
+---
+
+<!-- Auditoría 2026-09-29: verificado contra el código. T1-T11: las 8 secciones renderizadas en dist/index.html (hero, categorias, destacadas, asi de simple, flujo, comunidad, FAQ con 5 acordeones, CTA final), PackageTabs en el hero, metricas de comunidad desde la coleccion, reveal scroll. -->

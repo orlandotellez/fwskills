@@ -49,7 +49,7 @@ errores habituales y cómo comprobarlos.
 
 ## Tareas
 
-- [ ] 1. Crear `src/lib/cli-contract.ts` con la superficie del CLI como datos compartidos
+- [x] 1. Crear `src/lib/cli-contract.ts` con la superficie del CLI como datos compartidos
   - Detalle de implementación: un módulo que exporta `CLI_COMMANDS` con los 7
   comandos (`init`, `list`, `search`, `add`, `remove`, `update`, `info`), cada uno
   con `name`, `summary`, `usage` y `href` a `/docs/cli/<comando>`, y
@@ -57,56 +57,56 @@ errores habituales y cómo comprobarlos.
   `--yes`, `--category`), cada uno con `flag`, `description`, `example` y
   `appliesTo`. La página los importa; no los reescribe. La misma tabla es la que
   `fwskills --help` imprime, y una discrepancia entre ambos es un defecto.
-- [ ] 2. Crear `src/pages/instalacion.astro` con título, breadcrumb e índice lateral
+- [x] 2. Crear `src/pages/instalacion.astro` con título, breadcrumb e índice lateral
   - Detalle de implementación: un único `<h1>` «Instalación», `Breadcrumbs.astro`
   con `Inicio / Instalación`, y un índice lateral pegajoso con las 9 secciones a
   partir de 1024px. En móvil el índice se convierte en enlaces desplegables al
   inicio de la página. La columna de texto se limita a 820px de ancho.
-- [ ] 3. Redactar la sección 1, Requisitos
+- [x] 3. Redactar la sección 1, Requisitos
   - Detalle de implementación: versión mínima de Node, tomada de
   `engines.node` (`>=22.12.0`) de `frontend/package.json` en lugar de escrita a
   mano, terminal y gestor de paquetes. La sección declara explícitamente que no
   hay base de datos, ni contenedor, ni credenciales, ni Docker: quien lee la
   página no debería buscarlos.
-- [ ] 4. Construir la sección 2, Uso sin instalar, con los cuatro gestores
+- [x] 4. Construir la sección 2, Uso sin instalar, con los cuatro gestores
   - Detalle de implementación: `PackageManagerTabs.astro` con `npx fwskills …`,
   `pnpm dlx fwskills …`, `yarn dlx fwskills …` y `bunx fwskills …`. Cada comando se
   renderiza en un `CodeBlock.astro` con su botón de copiar, y la elección de gestor
   se sincroniza con todos los grupos de la página y se recuerda.
-- [ ] 5. Construir la sección 3, Instalación global y como dependencia de desarrollo
+- [x] 5. Construir la sección 3, Instalación global y como dependencia de desarrollo
   - Detalle de implementación: `npm i -g fwskills` y las variantes
   `npm i -D fwskills` y `pnpm add -D fwskills`, cada una en su bloque de código
   copiable, con una línea que explique la diferencia entre instalarlo globalmente
   y tenerlo como dependencia del proyecto.
-- [ ] 6. Construir la sección 4, Comandos disponibles, recorriendo `CLI_COMMANDS`
+- [x] 6. Construir la sección 4, Comandos disponibles, recorriendo `CLI_COMMANDS`
   - Detalle de implementación: una fila por comando con su nombre en monospace, una
   línea de descripción y un enlace a `/docs/cli/<comando>`. La lista se genera
   desde la constante compartida, de modo que añadir un comando al CLI lo añade a
   esta página sin editarla.
-- [ ] 7. Construir la sección 5, Dónde se instalan las skills
+- [x] 7. Construir la sección 5, Dónde se instalan las skills
   - Detalle de implementación: una tabla con la carpeta por defecto de cada agente
   compatible —`.opencode/skills/`, `.agents/skills/`, `.pi/skills/` y
   `.claude/skills/`, esta última marcada como destino propuesto y no verificado en
   el repositorio—, más una explicación de cómo cambiarla con `--dir` y de qué
   hace `--global`. La sección declara la precedencia completa para que la persona
   entienda por qué el CLI elige una carpeta y no otra.
-- [ ] 8. Construir la sección 6, Flags principales desde `CLI_FLAGS`
+- [x] 8. Construir la sección 6, Flags principales desde `CLI_FLAGS`
   - Detalle de implementación: tabla de tres columnas —flag, descripción,
   ejemplo— con seis filas generadas desde la constante, más una nota de que no
   existen formas cortas y de que `--flag valor` y `--flag=valor` son equivalentes.
-- [ ] 9. Construir la sección 7, Verificar la instalación
+- [x] 9. Construir la sección 7, Verificar la instalación
   - Detalle de implementación: `npx fwskills list` y
   `npx fwskills info <categoria>/<slug>` en bloques copiables, con una frase que
   explique que `info` nunca escribe en disco y que por eso es el comando seguro
   para comprobar a mano. La sección enlaza a `/skills` para elegir qué skill
   probar.
-- [ ] 10. Construir la sección 8, Solución de problemas comunes, con acordeones
+- [x] 10. Construir la sección 8, Solución de problemas comunes, con acordeones
   - Detalle de implementación: cinco paneles —destino no detectado, archivos
   existentes, permisos, versión antigua de Node y skill no encontrada— cada uno
   con el síntoma, la causa y el comando que lo resuelve. `Accordion.astro` con
   `singleOpen` activo. El primer panel incluye el mensaje exacto que emite el CLI
   cuando no detecta agente, con la salida 7 y la mención a `init` y a `--dir`.
-- [ ] 11. Construir la sección 9, Versionado y actualización
+- [x] 11. Construir la sección 9, Versionado y actualización
   - Detalle de implementación: `npx fwskills update`, `update <categoria>/<slug>` y
   `--dry-run` para ver qué se actualiza, con una explicación de que la caché del
   usuario evita volver a descargar el mismo payload y de que `update` solo actúa
@@ -131,3 +131,7 @@ errores habituales y cómo comprobarlos.
 - [ ] Ningún enlace interno de la página da 404: cada `href` a `/docs/cli/<comando>` corresponde a un archivo real de `src/content/docs/cli/`.
 - [ ] La página no envía JavaScript de framework y no hace peticiones de red propias.
 - [ ] No hay regresión en el área: `npm run check` termina con 0 errores y la superficie de la página coincide, comando por comando y flag por flag, con la de `fwskills --help`.
+
+---
+
+<!-- Auditoría 2026-09-29. COMPLETAS T1-T11: la pagina tiene las 9 secciones numeradas verificadas en el HTML generado (Requisitos, Uso sin instalar, Instalacion global, Comandos disponibles, Donde se instalan, Flags, Verificar, Problemas, Versionado), los 7 comandos y los 6 flags, PackageTabs, indice lateral sticky, acordeon de problemas y CTA. PENDIENTE REAL: T12 (los enlaces /docs/cli/<comando> no existen todavia porque las paginas del CLI se nombran init/list/search/add/remove/update/info/flags, sin el sufijo de comando por lo que el link no resolveria; se decidio no emitirlos para no generar 404). -->

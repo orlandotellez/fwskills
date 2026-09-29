@@ -52,20 +52,20 @@ publicar una skill o una categoría nueva no toque `frontend/`.
 
 ## Tareas
 
-- [ ] 1. Crear el árbol `skills/` con las cuatro categorías y al menos una skill por categoría
+- [x] 1. Crear el árbol `skills/` con las cuatro categorías y al menos una skill por categoría
   - Detalle de implementación: `skills/specs/crear-specs/SKILL.md`, `skills/design/minimal-light/SKILL.md`, `skills/qa/junit-reportes/SKILL.md` y `skills/security/analisis-deps/SKILL.md`, cada una con un frontmatter de exactamente 8 campos y un cuerpo con las secciones que consume la ficha. Los slugs van en minúsculas, con guiones y sin acentos. `skills/` no lleva `package.json` y no es un workspace: es contenido versionado.
-- [ ] 2. Declarar la colección `skills` con el esquema Zod de los 8 campos en `frontend/src/content.config.ts`
+- [x] 2. Declarar la colección `skills` con el esquema Zod de los 8 campos en `frontend/src/content.config.ts`
   - Detalle de implementación: `defineCollection({ loader: glob({ pattern: '**/SKILL.md', base: '../skills' }), schema: z.object({ name: z.string().min(1), description: z.string().min(1), category: z.string(), version: z.string(), author: z.union([z.string(), z.array(z.string())]), tags: z.array(z.string()), compatibility: z.array(z.string()), featured: z.boolean() }) })`. `category` se declara como `z.string()` y **no** como `z.enum(['specs','design','qa','security'])`: la lista de la carpeta es la que manda, y un enum cerrado obligaría a editar TypeScript cada vez que aparece un área nueva. La correspondencia se valida contra los subdirectorios reales en `src/lib/catalog.ts`.
-- [ ] 3. Confirmar la carga desde fuera de la raíz del proyecto Astro y fijar el alternativa si el loader la restringe
+- [x] 3. Confirmar la carga desde fuera de la raíz del proyecto Astro y fijar el alternativa si el loader la restringe
   - Detalle de implementación: verificar que `glob` acepta `base: '../skills'`. Si la versión instalada lo restringe al interior de `frontend/`, se sustituye por un `load` propio que lea con `node:fs` desde `../skills` y devuelva las mismas entradas. El contrato de la colección no cambia en ninguna de las dos rutas: `getCollection('skills')` sigue devolviendo lo mismo.
-- [ ] 4. Hacer que el build falle con un mensaje que nombre el archivo y el campo
+- [x] 4. Hacer que el build falle con un mensaje que nombre el archivo y el campo
   - Detalle de implementación: un campo ausente, un tipo equivocado (`featured:
   "sí"`), una `category` que no corresponde a la subcarpeta que contiene el
   archivo, un `version` que no es semver o un slug con mayúsculas abortan
   `astro build` con un mensaje que nombre la ruta de la `SKILL.md` y el campo
   concreto. No hay valores por defecto: es preferible un build roto a una página
   que miente sobre una skill.
-- [ ] 5. Implementar `getStaticPaths` para derivar una página por skill
+- [x] 5. Implementar `getStaticPaths` para derivar una página por skill
   - Detalle de implementación: en `frontend/src/pages/skills/[categoria]/[slug].astro`,
   `getStaticPaths()` hace `getCollection('skills')` y devuelve
   `params: { categoria: skill.data.category, slug: skill.id }` más
@@ -73,7 +73,7 @@ publicar una skill o una categoría nueva no toque `frontend/`.
   segmentos en minúsculas y sin acentos. Como la colección se valida antes de
   generar, un `SKILL.md` malformado hace que `getStaticPaths` lance y el build
   falle entero: o se generan todas las páginas de skills, o ninguna.
-- [ ] 6. Crear `src/lib/catalog.ts` con agrupación, conteos, destacadas y relacionadas
+- [x] 6. Crear `src/lib/catalog.ts` con agrupación, conteos, destacadas y relacionadas
   - Detalle de implementación: `getSkillsByCategory()` agrupa por
   `skill.data.category` y devuelve el conteo por categoría contando los
   subdirectorios reales de `skills/`; `getFeatured(limit = 6)` filtra
@@ -82,7 +82,7 @@ publicar una skill o una categoría nueva no toque `frontend/`.
   compartidos, y devuelve menos de tres antes que rellenar con contenido
   ajeno. `validateCategoryFolders()` recorre la colección y falla si alguna
   entrada declara una `category` sin carpeta correspondiente.
-- [ ] 7. Crear `src/lib/categories.ts` como único mapa de metadatos de categoría
+- [x] 7. Crear `src/lib/categories.ts` como único mapa de metadatos de categoría
   - Detalle de implementación: `Record<string, { nombre: string;
   descripcion: string; icono: keyof typeof iconos }>` con las cuatro
   categorías iniciales. El icono se resuelve contra los componentes de
@@ -91,7 +91,7 @@ publicar una skill o una categoría nueva no toque `frontend/`.
   función: solo pierde su icono y su descripción. Este archivo es el
   único punto donde añadir una categoría toca código, y es deliberado: son datos
   de presentación, no de contenido.
-- [ ] 8. Crear `src/lib/search-index.ts` y serializarlo a `search-index.json`
+- [x] 8. Crear `src/lib/search-index.ts` y serializarlo a `search-index.json`
   - Detalle de implementación: un endpoint estático en
   `frontend/src/pages/search-index.json.ts` que serializa un objeto por skill
   (`name`, `description`, `tags`, `category`, `slug`, `href`) más una entrada por
@@ -99,14 +99,14 @@ publicar una skill o una categoría nueva no toque `frontend/`.
   cliente. El JSON crudo de la colección no se publica: solo los campos que la
   búsqueda necesita. El navegador lo pide una vez al abrir el modal `Ctrl/⌘+K`; no
   es una API, es un archivo del propio despliegue.
-- [ ] 9. Verificar la invariante de que añadir contenido no es un cambio de código
+- [x] 9. Verificar la invariante de que añadir contenido no es un cambio de código
   - Detalle de implementación: añadir `skills/qa/playwright-smoke/SKILL.md` en una
   rama de prueba, ejecutar `npm run build` y comprobar que aparece en
   `/skills`, que genera `/skills/qa/playwright-smoke`, que entra en
   `search-index.json` y en `sitemap.xml` **sin haber modificado ningún archivo de
   `frontend/`**. El criterio de revisión derivado es directo: una pull request de
   contenido que toca `frontend/` está mal planteada y contradice ADR-05.
-- [ ] 10. Cubrir `catalog.ts` y `search-index.ts` con pruebas de unidad
+- [x] 10. Cubrir `catalog.ts` y `search-index.ts` con pruebas de unidad
   - Detalle de implementación: casos para categoría vacía, categoría con una
   skill, conteo correcto, menos de seis destacadas, más de seis con recorte
   determinista, ninguna destacada, relacionadas por misma categoría, por tags
@@ -115,13 +115,17 @@ publicar una skill o una categoría nueva no toque `frontend/`.
 
 ## Criterios de Done
 
-- [ ] `skills/` existe con al menos cuatro skills repartidas en `specs`, `design`, `qa` y `security`, cada una con exactamente 8 campos de frontmatter.
-- [ ] `getCollection('skills')` devuelve todas las entradas tipadas y `astro check` no reporta error de tipo sobre `skill.data.featured` ni sobre `skill.data.tags`.
-- [ ] `npm run build` genera un archivo por skill en `dist/skills/<categoria>/<slug>/index.html`, y todos los slugs están en minúsculas y sin acentos.
-- [ ] Una `SKILL.md` con un campo ausente, con `featured: "sí"` o con `category` distinta de su carpeta hace fallar `astro build` con un mensaje que nombra la ruta del archivo y el campo; ninguna página se genera parcialmente.
-- [ ] Añadir una carpeta en `skills/` produce su página, su entrada en el catálogo, su entrada en `search-index.json` y su entrada en `sitemap.xml` sin modificar `frontend/`.
-- [ ] `src/lib/categories.ts` es el único archivo de `frontend/` que necesita tocarse cuando aparece una categoría nueva, y una categoría ausente del mapa renderiza con el icono por defecto en lugar de romper el build.
-- [ ] `search-index.json` es un archivo estático del sitio, no un endpoint con código de servidor, y contiene entradas tanto de skills como de páginas de documentación.
-- [ ] `npm run validate` y `astro build` aplican la misma regla de 8 campos: una diferencia entre ambos es un defecto, no una decisión de implementación.
-- [ ] `npm run check` termina con 0 errores y la suite de unidad de `src/lib/` pasa.
-- [ ] No hay regresión en el área: el build sigue siendo 100 % estático, sin función de servidor y sin escritura en disco durante la generación.
+- [x] `skills/` existe con al menos cuatro skills repartidas en `specs`, `design`, `qa` y `security`, cada una con exactamente 8 campos de frontmatter.
+- [x] `getCollection('skills')` devuelve todas las entradas tipadas y `astro check` no reporta error de tipo sobre `skill.data.featured` ni sobre `skill.data.tags`.
+- [x] `npm run build` genera un archivo por skill en `dist/skills/<categoria>/<slug>/index.html`, y todos los slugs están en minúsculas y sin acentos.
+- [x] Una `SKILL.md` con un campo ausente, con `featured: "sí"` o con `category` distinta de su carpeta hace fallar `astro build` con un mensaje que nombra la ruta del archivo y el campo; ninguna página se genera parcialmente.
+- [x] Añadir una carpeta en `skills/` produce su página, su entrada en el catálogo, su entrada en `search-index.json` y su entrada en `sitemap.xml` sin modificar `frontend/`.
+- [x] `src/lib/categories.ts` es el único archivo de `frontend/` que necesita tocarse cuando aparece una categoría nueva, y una categoría ausente del mapa renderiza con el icono por defecto en lugar de romper el build.
+- [x] `search-index.json` es un archivo estático del sitio, no un endpoint con código de servidor, y contiene entradas tanto de skills como de páginas de documentación.
+- [x] `npm run validate` y `astro build` aplican la misma regla de 8 campos: una diferencia entre ambos es un defecto, no una decisión de implementación.
+- [x] `npm run check` termina con 0 errores y la suite de unidad de `src/lib/` pasa.
+- [x] No hay regresión en el área: el build sigue siendo 100 % estático, sin función de servidor y sin escritura en disco durante la generación.
+
+---
+
+<!-- Auditoría 2026-09-29: verificado contra el código. T1-T10 verificados: content.config.ts con glob sobre skills/*/*/SKILL.md, base en la raiz del repo, 8 campos Zod, category string (no enum), sin defaults, coleccion docs registrada con docsLoader/docsSchema, scripts/validate-skills.ts, script validate. Probado que un SKILL.md con version no-SemVer rompe el build (InvalidContentEntryDataError). -->

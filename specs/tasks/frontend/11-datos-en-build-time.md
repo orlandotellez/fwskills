@@ -46,7 +46,7 @@ muestre el último valor conocido u omita la métrica sin romper la compilación
 
 ## Tareas
 
-- [ ] 1. Crear `src/lib/github.ts` con el cliente de solo lectura
+- [x] 1. Crear `src/lib/github.ts` con el cliente de solo lectura
   - Detalle de implementación: una función `githubFetch<T>(path, params)` que
   llama a `https://api.github.com`, envía
   `Accept: application/vnd.github+json`, fija `X-GitHub-Api-Version`, adjunta
@@ -55,14 +55,14 @@ muestre el último valor conocido u omita la métrica sin romper la compilación
   publica el JSON crudo. La variable se lee con `import.meta.env.GITHUB_TOKEN` en
   el servidor de build, y al no llevar el prefijo `PUBLIC_` Astro no la expone al
   navegador.
-- [ ] 2. Resolver el token ausente, inválido o caducado sin romper el build
+- [x] 2. Resolver el token ausente, inválido o caducado sin romper el build
   - Detalle de implementación: sin token se funciona con el límite no autenticado.
   Con un token que la API rechaza se emite un aviso en stderr que nombre la
   variable —nunca su valor— y se continúa sin él. El build no falla por un secreto
   caducado: un secreto caducado se reporta, pero no bloquea una publicación. El
   error más común es el límite de peticiones agotado, y su causa probable es
   `GITHUB_TOKEN` ausente, así que el aviso de 403 lo dice explícitamente.
-- [ ] 3. Implementar la caché en disco con ventana en horas
+- [x] 3. Implementar la caché en disco con ventana en horas
   - Detalle de implementación: `src/lib/github-cache.ts` guarda cada respuesta en
   `node_modules/.cache/fwskills/github/`, con una clave
   `endpoint + params ordenados` y una marca de tiempo. La ventana se mide en
@@ -70,7 +70,7 @@ muestre el último valor conocido u omita la métrica sin romper la compilación
   intervalo. Un build en frío hace una petición por métrica y el resto sale de la
   caché. La caché se invalida al cambiar de repositorio y se limpia con un
   comando explícito.
-- [ ] 4. Resolver las cuatro métricas con una sola llamada por recurso
+- [x] 4. Resolver las cuatro métricas con una sola llamada por recurso
   - Detalle de implementación: `getRepoStats()` devuelve `{ stars, description,
   lastPushAt }` desde la ficha del repositorio; `getContributors(limit)`
   devuelve el listado de colaboradores con `login` y `avatar_url`;
@@ -80,7 +80,7 @@ muestre el último valor conocido u omita la métrica sin romper la compilación
   build y su resultado se comparte: el número de peticiones no crece con el
   número de skills, salvo la fecha por skill, que se resuelve una vez por entrada
   de la colección.
-- [ ] 5. Implementar la degradación en tres niveles
+- [x] 5. Implementar la degradación en tres niveles
   - Detalle de implementación: ante cualquier fallo —GitHub caído, 403 por límite,
   repositorio renombrado o un campo inesperado en la respuesta— se usa el último
   valor cacheado; si no hay caché, se marca la métrica como no disponible; y si no
@@ -88,7 +88,7 @@ muestre el último valor conocido u omita la métrica sin romper la compilación
   muestra `0`: un cero de estrellas afirma que se consultó GitHub y no hay
   ninguna. «No lo sé» y «vale cero» son datos distintos, y la interfaz tiene que
   distinguirlos. El build nunca falla por esta integración.
-- [ ] 6. Definir cómo se manifiesta la ausencia de cada métrica en la interfaz
+- [x] 6. Definir cómo se manifiesta la ausencia de cada métrica en la interfaz
   - Detalle de implementación: el tipo de retorno distingue `number` de `null`, y
   cada consumidor decide. Sin estrellas, el contador del header no se renderiza
   pero el enlace a GitHub **sí**, porque siempre funciona. Sin contribuidores, la
@@ -145,3 +145,7 @@ muestre el último valor conocido u omita la métrica sin romper la compilación
 - [ ] El número de peticiones a GitHub no crece con el número de skills más allá de una petición de fecha por skill.
 - [ ] `grep -rn 'ghp_\|github_pat_' frontend/` no devuelve ninguna coincidencia, y ningún valor de token aparece en un archivo versionado.
 - [ ] `GITHUB_TOKEN` no llega al bundle del navegador: no lleva el prefijo `PUBLIC_` y el HTML generado no la contiene.
+
+---
+
+<!-- Auditoría 2026-09-29. COMPLETAS T1-T6: github.ts resuelve estrellas, releases y contribuyentes en build time con cache en disco (.cache/fwskills/github), GITHUB_TOKEN opcional, AbortSignal.timeout, Promise.all (una llamada por recurso), y degradacion en tres niveles verificada con Playwright bloqueando api.github.com: la pagina renderiza y las metricas ausentes caen a "—". PENDIENTES REALES: T7 (avatares NO se descargan a public/contributors: hoy son URLs remotas de GitHub), T8 (0/7 skills tienen updatedAt en el frontmatter), T9 (no hay script de limpieza de cache), T11 (no hay test de degradacion automatizado: se verifico a mano con Playwright, no esta en la suite). -->

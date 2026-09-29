@@ -65,16 +65,16 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
 
 ## Tareas
 
-- [ ] 1. Crear `frontend/src/components/` y mover las secciones reutilizables sin cambiar su marcado
+- [x] 1. Crear `frontend/src/components/` y mover las secciones reutilizables sin cambiar su marcado
   - Detalle de implementación: `src/sections/Header.astro` pasa a `src/components/SiteHeader.astro` y `src/sections/Footer.astro` a `src/components/SiteFooter.astro`; los otros cinco (`Hero`, `Features`, `DesignSkills`, `HowItWorks`, `CTA`) son bloques de una sola página y se quedan en `src/sections/` hasta que `04-inicio.md` los componga. Cada componente declara `interface Props` en el frontmatter y desestructura con valores por defecto. `src/pages/index.astro` actualiza los imports y sigue produciendo `/` sin cambiar su salida visible.
 - [ ] 2. Declarar el punto único de arranque de las islas en `frontend/src/scripts/index.ts`
   - Detalle de implementación: `index.ts` importa los siete módulos de
   comportamiento y los registra **una sola vez**, por delegación de eventos sobre
   contenedores estables y nunca por `id` de un elemento concreto. Cada módulo
   comprueba que su nodo existe antes de activarse (`document.querySelector('[data-search-trigger]')` y salir si no está), de modo que la misma isla sirve en páginas donde no aplica. Los scripts se cargan como `<script type="module">` desde `Layout.astro`. Registrar un listener dos veces es un bug silencioso, así que el arranque es idempotente por construcción.
-- [ ] 3. Construir `SiteHeader.astro` fijo con subrayado activo y animable
+- [x] 3. Construir `SiteHeader.astro` fijo con subrayado activo y animable
   - Detalle de implementación: `position: fixed`, altura `var(--header-height)` (72px), `z-index` por encima del contenido. Izquierda: wordmark que enlaza a `/`. Centro-derecha: `Skills · Instalación · Docs · Contribuir`; el ítem activo se marca con un subrayado de 2px en `var(--accent)` y en hover el subrayado se anima con `transform`/`scaleX`, nunca con transición de `color`. El marcado usa `aria-current="page"` en el enlace activo. La comparación de ruta es `Astro.url.pathname.startsWith(href)`, con coincidencia exacta para `/`.
-- [ ] 4. Añadir al header el disparador de búsqueda, el enlace a GitHub con estrellas, el toggle de tema y el estado de scroll
+- [x] 4. Añadir al header el disparador de búsqueda, el enlace a GitHub con estrellas, el toggle de tema y el estado de scroll
   - Detalle de implementación: a la derecha, un `<button data-search-trigger
   aria-label="Buscar" aria-haspopup="dialog">` que documenta el atajo
   `Ctrl/⌘+K`; un enlace a GitHub con `target="_blank" rel="noopener"` y un
@@ -83,7 +83,7 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
   `aria-pressed`. `src/scripts/header.ts` añade o quita la clase de scroll a los
   40px, aplicando `backdrop-filter: blur(12px) saturate(140%)` y un borde inferior
   de 1px. El contador de estrellas no lleva `aria-live`: en build no cambia.
-- [ ] 5. Implementar el menú móvil del header con hamburguesa que anima a ✕, foco atrapado y scroll bloqueado
+- [x] 5. Implementar el menú móvil del header con hamburguesa que anima a ✕, foco atrapado y scroll bloqueado
   - Detalle de implementación: por debajo de 768px, `<button data-menu-trigger
   aria-expanded="false" aria-controls="menu-panel" aria-label="Abrir menú">` con
   tres barras que rotan 45° hasta componer ✕, y un panel a pantalla completa con
@@ -94,14 +94,14 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
   Mientras está abierto, `body` recibe `overflow: hidden` y el resto del documento
   recibe `inert`. Con `prefers-reduced-motion: reduce` el panel aparece y desaparece
   sin transición. Los dos paneles (menú y modal) no pueden estar abiertos a la vez.
-- [ ] 6. Construir `CodeBlock.astro` con etiqueta de lenguaje, copia, desbordamiento interno y resaltado
+- [x] 6. Construir `CodeBlock.astro` con etiqueta de lenguaje, copia, desbordamiento interno y resaltado
   - Detalle de implementación: fondo `var(--surface-elevated)`, `radius-md`, borde
   `var(--border)`, etiqueta de lenguaje arriba a la izquierda en caption, botón
   «Copiar» arriba a la derecha y `overflow-x: auto` **interno** para que el bloque
   nunca desborde la página. El resaltado usa los roles `--syn-*` de
   `01-sistema-de-diseno.md`. La variante con nombre de archivo sustituye la
   etiqueta de lenguaje por el nombre y es la que se usa en `/docs`.
-- [ ] 7. Implementar la copia al portapapeles con «¡Copiado!» anunciado y reserva de temporizador
+- [x] 7. Implementar la copia al portapapeles con «¡Copiado!» anunciado y reserva de temporizador
   - Detalle de implementación: `src/scripts/copy.ts` delega `click` sobre
   `[data-copy]`, lee el texto del atributo, escribe en `navigator.clipboard` y
   cambia la etiqueta del botón a «¡Copiado!» en `var(--success)` durante 2s, con el
@@ -110,7 +110,7 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
   de acumular temporizadores. Si `navigator.clipboard` no existe o el permiso se
   deniega, se avisa «No se pudo copiar» en `var(--error)`, se muestra el texto en
   un input seleccionable y no se rompe la página.
-- [ ] 8. Construir `PackageManagerTabs.astro` con los cuatro gestores y sincronización por evento único
+- [x] 8. Construir `PackageManagerTabs.astro` con los cuatro gestores y sincronización por evento único
   - Detalle de implementación: pestañas `npm`, `pnpm`, `yarn` y `bun` con
   `role="tablist"`, `role="tab"` y `role="tabpanel"`, `aria-selected` y navegación
   por flechas. `src/scripts/package-manager.ts` registra **un solo listener** en
@@ -121,7 +121,7 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
   persistido se aplica en el script inline del `<head>` con un atributo
   `data-pm` en `<html>`, igual que el tema, para que no haya un frame con `npm`
   antes de cambiar a `pnpm`. Todo acceso a `localStorage` va en `try/catch`.
-- [ ] 9. Construir `SkillCard.astro` con nombre en monospace, descripción recortada y copia rápida
+- [x] 9. Construir `SkillCard.astro` con nombre en monospace, descripción recortada y copia rápida
   - Detalle de implementación: acepta `skill: SkillEntry` y emite nombre en
   `var(--font-mono)` a 17px, descripción recortada a 2 líneas con
   `-webkit-line-clamp: 2`, badge de categoría, badge de versión, tags en caption con
@@ -129,13 +129,13 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
   `npx fwskills add <categoria>/<slug>` con `[data-copy]` sin navegar. La tarjeta
   completa es enlace al destino, y el botón de copia queda fuera del enlace para no
   disparar la navegación.
-- [ ] 10. Construir `Badge.astro` con sus cuatro variantes
+- [x] 10. Construir `Badge.astro` con sus cuatro variantes
   - Detalle de implementación: variante `category` (nombre de la categoría, un
   color por categoría, texto en `--on-accent`), `version` (`v1.2.0`,
   `--text-secondary` sobre `--surface-elevated`), `compatibility` (agentes
   soportados, mismo tratamiento) y `author` (nombre o avatar en `--text-muted`,
   enlazado al perfil de GitHub). Todas con `radius-pill` y tipografía caption.
-- [ ] 11. Construir `Breadcrumbs.astro` y `Accordion.astro` con su contrato accesible
+- [x] 11. Construir `Breadcrumbs.astro` y `Accordion.astro` con su contrato accesible
   - Detalle de implementación: `Breadcrumbs.astro` acepta `items: { label: string;
   href?: string }[]`, renderiza separador `/` y deja el último elemento sin
   enlace, en caption, separado del título por `--space-md`. `Accordion.astro`
@@ -144,7 +144,7 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
   quedar en `×`, el contenido se despliega con fundido más desplazamiento, y el
   botón lleva `aria-expanded` y `aria-controls` apuntando al `id` del panel.
   `src/scripts/accordion.ts` es el único que escribe ese atributo.
-- [ ] 12. Construir `SiteFooter.astro` con cuatro columnas responsivas y barra inferior
+- [x] 12. Construir `SiteFooter.astro` con cuatro columnas responsivas y barra inferior
   - Detalle de implementación: fondo `var(--surface)` y borde superior de 1px en
   `var(--border)`, idéntico en todas las páginas. Cuatro columnas —Marca
   (wordmark, una línea descriptiva, iconos GitHub / npm / comunidad), Producto
@@ -153,7 +153,7 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
   Licencia · Seguridad)— en 4 columnas a escritorio, 2 en tablet y 1 en móvil. La
   barra inferior dice «© 2026 fwskills. Proyecto open source bajo licencia MIT.
   Hecho por la comunidad.»
-- [ ] 13. Construir el modal de búsqueda global sobre el índice de build
+- [x] 13. Construir el modal de búsqueda global sobre el índice de build
   - Detalle de implementación: `src/scripts/search.ts` abre el diálogo con
   `Ctrl/⌘+K` desde cualquier página, cierra el menú móvil si estuviera abierto, y
   al abrir por primera vez en la sesión carga `/search-index.json` —un archivo
@@ -193,3 +193,7 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
 - [ ] El sitio no envía ningún framework: `grep -rn 'client:' frontend/src` no devuelve ninguna directiva de hydration fuera de la integración de Starlight.
 - [ ] `localStorage` solo contiene las claves `fwskills:theme` y `fwskills:pm`, y todo acceso va envuelto en `try/catch`.
 - [ ] Sin regresión en el área: `npm run check` termina con 0 errores y `npm run build` genera `dist/` con la página `/` completa.
+
+---
+
+<!-- Auditoría 2026-09-29. COMPLETAS T1,T3-T13: los 8 componentes globales existen y sus comportamientos estan implementados (header fijo con subrayado activo y panel movil con foco atrapado, CodeBlock con copiar, PackageTabs con 4 gestores y localStorage, SkillCard con line-clamp, Badge con 4 variantes, Breadcrumbs con ultimo no-link, Accordion con + que rota a x, Footer 4 columnas, SearchDialog con Ctrl+K sobre el indice de build). PENDIENTES REALES: T2 (src/scripts/index.ts como punto unico de islas: cada componente importa su propio script, no existe el indice) y T15 (no hay tests de integracion de componentes; el unico test es reduced-motion). -->
