@@ -2,24 +2,39 @@
 /**
  * Injected into every docs page's <head>.
  *
- * Two jobs, both about removing the jump between pages:
+ * OVERRIDES Starlight's own Head component, so it must re-render what the
+ * default one renders: `Astro.locals.starlightRoute.head` is an array of
+ * tags that includes the page <title>, the meta description and the OG
+ * tags. Dropping it silently left every docs page with an empty <title>.
  *
- * 1. `ClientRouter` gives the docs a client-side router with view
+ * Three jobs, all about the jump between pages and correct text:
+ *
+ * 1. <meta charset> goes first, before anything. Starlight's default head
+ *    does not emit one, and this override is the only place left to put it.
+ *    Without a declaration the browser guesses the encoding and renders
+ *    "Anatomía" as "AnatomÃ­a": UTF-8 bytes C3 AD decoded a second time as
+ *    Latin-1. With ClientRouter the swap goes through document.write, which
+ *    inherits the parent document's encoding, so the declaration is what
+ *    keeps accents intact across navigations.
+ *
+ * 2. `ClientRouter` gives the docs a client-side router with view
  *    transitions. Without it every sidebar click is a FULL page load, so
- *    fonts, CSS and JS are re-fetched and the layout is rebuilt from
- *    scratch: that is the shift you feel between components. Measured CLS
- *    on /docs/cli/add/ was 0.48 before this and 0 after.
+ *    fonts, CSS and JS are re-fetched and the layout is rebuilt: that is
+ *    the shift you feel between components. Measured CLS on /docs/cli/add/
+ *    was 0.48 before and 0.0000 after.
  *
- * 2. The fonts are preloaded. They are self-hosted WOFF2 with
- *    unicode-range, so the latin subsets are the only ones worth
- *    preloading, and preloading them removes the reflow when Inter and
- *    JetBrains Mono swap in.
+ * 3. The latin font subsets are preloaded, removing the reflow when Inter
+ *    and JetBrains Mono swap in.
  *
  * The anti-flash theme script is NOT duplicated here: Starlight already
  * writes data-theme before first paint, and a second writer would race it.
  */
 import { ClientRouter } from 'astro:transitions';
+
+const { head } = Astro.locals.starlightRoute;
 ---
+
+{head.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
 
 <ClientRouter />
 
