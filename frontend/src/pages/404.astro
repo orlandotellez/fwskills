@@ -1,0 +1,140 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+/**
+ * 404. Rendered for any URL the site does not have, including slugs de skill
+ * o de categoría que no existen.
+ *
+ * No breadcrumbs here on purpose: a breadcrumb trail promises a position in a
+ * hierarchy this URL does not have. Three exits is enough.
+ */
+---
+
+<Layout noindex
+  title="Página no encontrada — fwskills"
+  description="La dirección que buscas no existe o cambió de sitio. Vuelve al inicio o explora el catálogo de skills de fwskills."
+  ogImage="/og-default.svg"
+>
+  <section class="notfound">
+    <div class="container notfound__inner">
+      <span class="notfound__code">404</span>
+
+      <div class="notfound__art" aria-hidden="true">
+        <svg
+          width="132"
+          height="104"
+          viewBox="0 0 132 104"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <!-- Folder outline: the shape of a skill -->
+          <path
+            d="M14 30a6 6 0 0 1 6-6h20l8 9h64a6 6 0 0 1 6 6v47a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6V30Z"
+            class="art-folder"
+          />
+          <path d="M14 44h104" class="art-folder" />
+          <!-- A SKILL.md stub inside it -->
+          <rect x="40" y="56" width="52" height="20" rx="4" class="art-file" />
+          <path d="M48 63h30M48 69h20" class="art-file" />
+          <!-- The missing piece, dashed: it was never installed -->
+          <path d="M64 26 96 8" class="art-dash" />
+          <circle cx="100" cy="6" r="4" class="art-accent" />
+        </svg>
+      </div>
+
+      <h1 class="notfound__title">Esta skill no existe… todavía</h1>
+      <p class="notfound__text">
+        La dirección que buscas no está en el catálogo. Puede que la skill se publicara con
+        otro nombre, que la URL tenga un error, o que todavía nadie la haya escrito. El
+        catálogo es abierto: si la necesitas, puedes escribirla.
+      </p>
+
+      <div class="notfound__actions">
+        <a class="btn btn-primary" href="/">Volver al inicio</a>
+      </div>
+
+      <nav class="notfound__links" aria-label="Otras secciones">
+        <a href="/skills">Explorar skills →</a>
+        <a href="/docs/introduccion/">Leer la documentación →</a>
+      </nav>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .notfound {
+    display: flex;
+    align-items: center;
+    min-height: 70vh;
+    padding-block: var(--space-3xl);
+  }
+
+  .notfound__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-md);
+  }
+
+  .notfound__code {
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+  }
+
+  .notfound__art {
+    color: var(--text-secondary);
+  }
+
+  /* Line art in the palette: the folder is present, the file is empty,
+     the accent marks the piece that never arrived. */
+  .art-folder {
+    stroke: var(--border-strong);
+  }
+
+  .art-file {
+    stroke: var(--text-secondary);
+  }
+
+  .art-dash {
+    stroke: var(--text-muted);
+    stroke-dasharray: 4 5;
+  }
+
+  .art-accent {
+    stroke: var(--accent);
+    fill: none;
+  }
+
+  .notfound__title {
+    font-size: var(--text-h1);
+    line-height: 1.15;
+    max-width: 20ch;
+  }
+
+  .notfound__text {
+    max-width: 52ch;
+    color: var(--text-secondary);
+  }
+
+  .notfound__actions {
+    margin-block-start: var(--space-2xs);
+  }
+
+  .notfound__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-sm) var(--space-lg);
+    margin-block-start: var(--space-sm);
+    padding-block-start: var(--space-md);
+    border-block-start: 1px solid var(--border);
+    font-size: var(--text-body-sm);
+  }
+</style>
