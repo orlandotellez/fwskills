@@ -67,7 +67,7 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
 
 - [x] 1. Crear `frontend/src/components/` y mover las secciones reutilizables sin cambiar su marcado
   - Detalle de implementación: `src/sections/Header.astro` pasa a `src/components/SiteHeader.astro` y `src/sections/Footer.astro` a `src/components/SiteFooter.astro`; los otros cinco (`Hero`, `Features`, `DesignSkills`, `HowItWorks`, `CTA`) son bloques de una sola página y se quedan en `src/sections/` hasta que `04-inicio.md` los componga. Cada componente declara `interface Props` en el frontmatter y desestructura con valores por defecto. `src/pages/index.astro` actualiza los imports y sigue produciendo `/` sin cambiar su salida visible.
-- [ ] 2. Declarar el punto único de arranque de las islas en `frontend/src/scripts/index.ts`
+- [x] 2. Declarar el punto único de arranque de las islas en `frontend/src/scripts/index.ts`
   - Detalle de implementación: `index.ts` importa los siete módulos de
   comportamiento y los registra **una sola vez**, por delegación de eventos sobre
   contenedores estables y nunca por `id` de un elemento concreto. Cada módulo
@@ -163,13 +163,13 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
   desactiva con un texto explicativo y el resto del sitio sigue navegable. Comparte
   con el menú móvil la trampa de foco, el cierre con `Esc` y la restauración del
   foco.
-- [ ] 14. Sustituir la navegación ancla de la landing por la del header compartido
+- [x] 14. Sustituir la navegación ancla de la landing por la del header compartido
   - Detalle de implementación: `Header.astro` deja de enlazar a `#caracteristicas`,
   `#skills` y `#como-funciona` y pasa a apuntar a `/skills`, `/instalacion`,
   `/docs` y `/contribuir`. Los enlaces ancla se conservan en el cuerpo de la
   landing solo como acceso rápido desde «Cómo funciona», y ambos destinos existen
   como ruta real, para que ningún `href` interno dé 404.
-- [ ] 15. Cubrir el comportamiento de los componentes con pruebas de integración
+- [x] 15. Cubrir el comportamiento de los componentes con pruebas de integración
   - Detalle de implementación: `frontend/test/` con casos para menú móvil
   (`aria-expanded` a `true`, foco dentro del panel, `Esc` lo cierra, `overflow`
   bloqueado en `body`, foco restaurado al botón que lo abrió), tabs de gestor
@@ -196,4 +196,9 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
 
 ---
 
-<!-- Auditoría 2026-09-29. COMPLETAS T1,T3-T13: los 8 componentes globales existen y sus comportamientos estan implementados (header fijo con subrayado activo y panel movil con foco atrapado, CodeBlock con copiar, PackageTabs con 4 gestores y localStorage, SkillCard con line-clamp, Badge con 4 variantes, Breadcrumbs con ultimo no-link, Accordion con + que rota a x, Footer 4 columnas, SearchDialog con Ctrl+K sobre el indice de build). PENDIENTES REALES: T2 (src/scripts/index.ts como punto unico de islas: cada componente importa su propio script, no existe el indice) y T15 (no hay tests de integracion de componentes; el unico test es reduced-motion). -->
+<!-- Auditoría 2026-09-29. COMPLETAS T1,T3-T13: los 8 componentes globales existen y sus comportamientos estan implementados (header fijo con subrayado activo y panel movil con foco atrapado, CodeBlock con copiar, PackageTabs con 4 gestores y localStorage, SkillCard con line-clamp, Badge con 4 variantes, Breadcrumbs con ultimo no-link, Accordion con + que rota a x, Footer 4 columnas, SearchDialog con Ctrl+K sobre el indice de build). Resueltas despues: T2, T14, T15.
+T2: src/scripts/index.ts es el punto unico; los 7 modulos (theme, header, copy, package-tabs, accordion, search, reveal) se registran ahi y init() es idempotente. Se eliminaron los 5 bloques <script> de componentes y el reveal duplicado que contribuir.astro tenia. Los listeners ahora son handlers nombrados con unregister, que es lo que permite aislar un caso de test y ademas hace removible cada listener en produccion.
+T14: el header ya usaba rutas reales; se agrego el acceso rapido desde "Como funciona" con los 3 pasos apuntando a /skills, /instalacion y /docs/introduccion. Verificado: los 14 enlaces internos de la landing resuelven 200.
+T15: test/components.test.ts cubre los 5 comportamientos del spec (menu movil con aria-expanded, foco atrapado, Esc, overflow y restauracion de foco; tabs con sincronizacion entre grupos y persistencia; copia con exito Y con portapapeles denegado; acordeon con aria-expanded y hidden, incluido el modo exclusivo; tema con data-theme y persistencia). 20 tests, 0 fallos.
+
+El desarrollo de estos tests encontro y corrigio un bug real: los modulos se auto-registraban al importarse, asi que un segundo init() duplicaba los listeners y el toggle del acordeon se aplicaba dos veces (abria y cerraba en el mismo click). Verificado en reproduccion aislada antes de arreglarlo. -->

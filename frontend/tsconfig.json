@@ -10,7 +10,8 @@
   "compilerOptions": {
     "types": [
       "node",
-      "bun"
+      "bun",
+      "@happy-dom/global-registrator"
     ]
   }
 }

@@ -1,0 +1,4 @@
+# Los tests de componentes corren contra un DOM real (happy-dom), no contra
+# un stub. El prefijo registra window, document, localStorage y matchMedia.
+[test]
+preload = ["./test/setup.ts"]
