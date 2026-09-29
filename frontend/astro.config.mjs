@@ -5,7 +5,7 @@ import { fwskillsTheme } from './src/lib/shiki-theme.ts';
 import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
 
-const DOCS_EDIT_BASE = 'https://github.com/fwskills/fwskills/edit/main/frontend/src/content/docs/';
+const DOCS_EDIT_BASE = 'https://github.com/orlandotellez/fwskills/edit/main/frontend/';
 
 /**
  * .env is loaded here, not via process.env: astro.config.mjs is evaluated
@@ -90,7 +90,7 @@ export default defineConfig({
         // caused the layout shift between docs pages.
         components: { Head: './src/components/DocsHead.astro' },
         editLink: { baseUrl: DOCS_EDIT_BASE },
-        social: [{ icon: 'github', href: 'https://github.com/fwskills/fwskills', label: 'GitHub' }],
+        social: [{ icon: 'github', href: 'https://github.com/orlandotellez/fwskills', label: 'GitHub' }],
         lastUpdated: true,
         sidebar: [
           {
