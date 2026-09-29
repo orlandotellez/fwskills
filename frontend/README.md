@@ -1,70 +1,85 @@
-# Template ASTRO
+# frontend
 
-Landing estática creada con **Astro 7**, TypeScript y cero JavaScript en
-runtime. Generada por **fwinit** — saluda a fwinit en su hero y sirve como
-punto de partida completo: secciones listas, design tokens y SEO configurado.
+El sitio de **fwskills**: landing, catálogo de skills, ficha por skill,
+documentación y página de contribución. Astro 7, 100% estático.
+
+El README del proyecto —qué es, cómo se contribute, cómo está
+especificado— está en [`../README.md`](../README.md).
 
 ## Requisitos
 
 - Node.js >= 22.12.0
+- bun >= 1.4
 
-## Arrancar
+## Arranque
 
 ```bash
-npm install
-npm run dev        # http://localhost:4321
+bun install
+cp .env.example .env    # y editá PUBLIC_SITE_URL
+bun run dev             # http://localhost:4321
 ```
 
-## Estructura
+`bun run dev` arranca sin `.env`. La URL pública solo es obligatoria para
+`bun run build`, que falla de forma ruidosa si falta: la configuración
+anterior publicaba en silencio un `canonical` y un `sitemap.xml` apuntando
+a `example.com`.
+
+## Comandos
+
+| Comando | Qué hace |
+|---|---|
+| `bun run dev` | servidor de desarrollo |
+| `bun run build` | genera `dist/` |
+| `bun run preview` | sirve el build localmente |
+| `bun run check` | `astro check`, puerta de tipos |
+| `bun run check:watch` | lo mismo en watch |
+| `bun run validate` | valida el frontmatter de cada `SKILL.md` |
+| `bun test` | tests de contrato |
+
+## Estructura de `src/`
 
 ```
 src/
-├── layouts/Layout.astro     # Head + SEO + design tokens + utilidades CSS
-├── sections/
-│   ├── Header.astro         # Nav fija con logo y CTA
-│   ├── Hero.astro           # Saludo a fwinit + terminal card
-│   ├── Features.astro       # Grilla de features (grid-4)
-│   ├── DesignSkills.astro   # Las 4 skills de diseño de fwinit (grid-4)
-│   ├── HowItWorks.astro     # Pasos (grid-3)
-│   ├── CTA.astro            # Panel con llamada final
-│   └── Footer.astro         # Pie oscuro con créditos
-└── pages/
-    └── index.astro          # Compone Layout + secciones
+├── components/       # 9 componentes + DocsHead (override de Starlight)
+├── content/docs/     # 20 páginas de documentación
+│   └── docs/         # carpeta con prefijo docs/ a propósito (ver abajo)
+├── lib/
+│   ├── skills.ts     # deriva categorías del filesystem
+│   ├── markdown.ts   # markdown-it + Shiki para los cuerpos de las skills
+│   ├── highlight.ts  # resaltador compartido con el pipeline de markdown
+│   ├── github.ts     # datos de GitHub resueltos en build time
+│   ├── site.ts       # URLs y nombre del proyecto
+│   └── shiki-theme.ts# tema que emite var(--syn-*)
+├── pages/            # rutas del sitio
+├── scripts/          # theme.ts, header.ts
+├── styles/           # tokens, base, utilities, starlight.css
+├── content.config.ts # colección skills + la docs de Starlight
+└── layouts/          # Layout.astro
 ```
 
-## Personalizar
+## Por qué `content/docs/docs/`
 
-- **Marca**: los colores, espacios y tipografía viven como variables CSS en
-  `src/layouts/Layout.astro` (bloque `:root`).
-- **Contenido**: cada sección es un componente independiente en
-  `src/sections/`. Editá, agregá o eliminá secciones y actualizá
-  `pages/index.astro`.
-- **SEO**: `title` y `description` del Layout; copiá `.env.example` a `.env`
-  para la URL pública del sitio.
+Starlight deriva la URL del id de la entrada de la colección, y el id es
+la ruta relativa a `src/content/docs/`. Sin el prefijo duplicado, las
+páginas saldrían en `/` en lugar de `/docs/`. Es feo a propósito y
+funciona.
 
-## Skills de diseño
+## El catálogo se genera, no se escribe
 
-Este proyecto trae la biblioteca de skills de diseño de fwinit en
-`.opencode/skills/design/`: cuatro estilos listos para aplicar a toda la app —
-páginas públicas, landing y panel administrativo incluidos.
+`skills/` vive en la raíz del repo, fuera de `src/`, y se lee con un glob
+loader. Agregar una skill o una categoría es agregar una carpeta: el
+catálogo, las páginas de categoría, el buscador y el `sitemap.xml` se
+actualizan solos.
 
-- **dark-luxury-design** — oscuro premium: dorado/plata, grano, glow.
-- **minimal-light-design** — blanco limpio, tipografía editorial, un solo acento.
-- **neo-brutalist-design** — colores saturados, bordes negros, sombras duras.
-- **glassmorphism-design** — cristal translúcido, blur, fondos aurora.
+Como el loader no puede enganchar su pipeline de render a un archivo fuera
+de `src/`, el markdown de las skills lo renderiza `lib/markdown.ts` con
+`markdown-it` y el mismo tema de Shiki que usa el pipeline del sitio. Un
+bloque de código de un `SKILL.md` y un `<CodeBlock>` se ven idénticos.
 
-Para usar uno, pedíselo a tu agente de IA: _"hacelo con el estilo dark luxury"_
-o _"aplicá glassmorphism"_. La skill se aplica a la **aplicación completa** —
-landing, vistas públicas y secciones administrativas sin excepción: si alguna
-vista queda sin el estilo, es un defecto. Pedíle que cubra toda la app antes de
-dar la tarea por terminada.
+## Al tocar `/docs/`, leé primero
 
-## Build y deploy
-
-```bash
-npm run build      # genera dist/ (estático)
-npm run preview    # sirve el build localmente
-```
-
-Salida 100% estática: deployá en Vercel, Netlify, Cloudflare Pages o
-cualquier hosting de archivos.
+`src/styles/starlight.css` tiene, en el encabezado, las cuatro trampas de
+Starlight que ya nos costaron un bug cada una. En resumen: `defineConfig`
+en forma de objeto, orden de `@layer` declarado antes de usarlo, `base.css`
+fuera de docs, y un override de `Head` que re-renderiza
+`Astro.locals.starlightRoute.head`.
