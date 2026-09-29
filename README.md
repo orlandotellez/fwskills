@@ -1,5 +1,9 @@
 # fwskills
 
+![TypeScript](https://img.shields.io/badge/typescript-%233178C6.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Astro](https://img.shields.io/badge/astro-%23000000.svg?style=for-the-badge&logo=astro&logoColor=white)
+![Node.js](https://img.shields.io/badge/node.js-%23339933.svg?style=for-the-badge&logo=node.js&logoColor=white)
+
 Catálogo, documentación y sitio web para un repositorio comunitario de
 **skills para agentes de IA**. Cada skill es una carpeta con un `SKILL.md`
 que le dice a tu agente cómo hacer una tarea concreta.
