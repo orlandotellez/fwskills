@@ -182,17 +182,17 @@ lenguaje visual, más las islas de comportamiento que cada uno necesita.
 
 - [ ] Los ocho archivos existen en `frontend/src/components/` y cada uno declara `interface Props`; `astro check` no reporta ninguna prop implícita.
 - [ ] `/`, `/skills`, `/skills/<categoria>/<slug>`, `/instalacion`, `/contribuir` y `/docs/introduccion` comparten el mismo `SiteHeader.astro` y el mismo `SiteFooter.astro`.
-- [ ] El header es `position: fixed` con altura 72px; al hacer scroll de 40px gana `backdrop-filter: blur(12px) saturate(140%)` y borde inferior de 1px.
-- [ ] El enlace de la ruta actual lleva `aria-current="page"` y un subrayado de 2px en `--accent`; ese subrayado se anima por `transform`, no por `color`.
-- [ ] En móvil el botón de menú alterna `aria-expanded`, el foco queda dentro del panel mientras está abierto, `Esc` lo cierra, `body` tiene el scroll bloqueado y al cerrar el foco vuelve al botón que lo abrió.
+- [x] El header es `position: fixed` con altura 72px; al hacer scroll de 40px gana `backdrop-filter: blur(12px) saturate(140%)` y borde inferior de 1px.
+- [x] El enlace de la ruta actual lleva `aria-current="page"` y un subrayado de 2px en `--accent`; ese subrayado se anima por `transform`, no por `color`.
+- [x] En móvil el botón de menú alterna `aria-expanded`, el foco queda dentro del panel mientras está abierto, `Esc` lo cierra, `body` tiene el scroll bloqueado y al cerrar el foco vuelve al botón que lo abrió.
 - [ ] Un bloque de código largo hace scroll horizontal dentro del bloque y la página no tiene scroll horizontal a 320px de ancho.
-- [ ] Copiar un comando muestra «¡Copiado!» durante 2s en `--success` y el cambio se anuncia en un nodo `aria-live="polite"`; con el portapapeles denegado se muestra «No se pudo copiar» y el texto queda seleccionable.
-- [ ] Elegir un gestor de paquetes en un grupo actualiza todos los grupos de la página sin recargar, y tras recargar se mantiene el valor de `fwskills:pm`.
-- [ ] Todo icono decorativo lleva `aria-hidden="true"` y `focusable="false"`; el icono que es único contenido de un control va con `aria-label` en el control.
+- [x] Copiar un comando muestra «¡Copiado!» durante 2s en `--success` y el cambio se anuncia en un nodo `aria-live="polite"`; con el portapapeles denegado se muestra «No se pudo copiar» y el texto queda seleccionable.
+- [x] Elegir un gestor de paquetes en un grupo actualiza todos los grupos de la página sin recargar, y tras recargar se mantiene el valor de `fwskills:pm`.
+- [x] Todo icono decorativo lleva `aria-hidden="true"` y `focusable="false"`; el icono que es único contenido de un control va con `aria-label` en el control.
 - [ ] Todo objetivo táctil del header, del menú y de los tabs mide al menos 44×44px en móvil.
-- [ ] El sitio no envía ningún framework: `grep -rn 'client:' frontend/src` no devuelve ninguna directiva de hydration fuera de la integración de Starlight.
-- [ ] `localStorage` solo contiene las claves `fwskills:theme` y `fwskills:pm`, y todo acceso va envuelto en `try/catch`.
-- [ ] Sin regresión en el área: `npm run check` termina con 0 errores y `npm run build` genera `dist/` con la página `/` completa.
+- [x] El sitio no envía ningún framework: `grep -rn 'client:' frontend/src` no devuelve ninguna directiva de hydration fuera de la integración de Starlight.
+- [x] `localStorage` solo contiene las claves `fwskills:theme` y `fwskills:pm`, y todo acceso va envuelto en `try/catch`.
+- [x] Sin regresión en el área: `npm run check` termina con 0 errores y `npm run build` genera `dist/` con la página `/` completa.
 
 ---
 

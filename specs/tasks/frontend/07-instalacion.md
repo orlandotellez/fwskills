@@ -112,25 +112,25 @@ errores habituales y cómo comprobarlos.
   usuario evita volver a descargar el mismo payload y de que `update` solo actúa
   sobre skills instaladas por el CLI, que se reconocen por su archivo de manifiesto
   `.fwskills.json`.
-- [ ] 12. Añadir el cierre de la página
+- [x] 12. Añadir el cierre de la página
   - Detalle de implementación: un bloque de cierre con un botón primario a
   `/skills` y otro secundario a `/docs`, más una línea que enlace a
   `/contribuir` para quien llega a buscar una skill que no encuentra.
 
 ## Criterios de Done
 
-- [ ] `/instalacion` renderiza 9 secciones numeradas más el cierre, en el orden de la pantalla, y cada número es visible y navegable desde el índice lateral.
-- [ ] La sección 1 declara la versión mínima de Node leída de `engines.node` (`>=22.12.0`), no escrita a mano: cambiar `engines` cambia la página.
-- [ ] La sección 2 ofrece los cuatro gestores en un solo grupo de tabs; cambiar uno cambia todos los de la página y la elección persiste al recargar.
+- [ ] - [x] `/instalacion` renderiza 9 secciones numeradas más el cierre, en el orden de la pantalla, y cada número es visible y navegable desde el índice lateral.
+- [x] La sección 1 declara la versión mínima de Node leída de `engines.node` (`>=22.12.0`), no escrita a mano: cambiar `engines` cambia la página.
+- [x] La sección 2 ofrece los cuatro gestores en un solo grupo de tabs; cambiar uno cambia todos los de la página y la elección persiste al recargar.
 - [ ] La sección 4 enumera exactamente los 7 comandos y cada uno enlaza a una página `/docs/cli/<comando>` que existe.
-- [ ] La sección 5 nombra `.opencode/skills/`, `.agents/skills/`, `.pi/skills/` y `.claude/skills/`, y marca la de Claude Code como propuesta no verificada en el repositorio.
-- [ ] La sección 6 tiene una fila por cada uno de los 6 flags con descripción y ejemplo; la tabla se genera desde `CLI_FLAGS` y no desde markup escrito a mano.
-- [ ] La sección 7 permite copiar `npx fwskills list` y `npx fwskills info <categoria>/<slug>`, y el copiado muestra «¡Copiado!» con anuncio `aria-live`.
-- [ ] Los cinco acordeones de la sección 8 tienen `aria-expanded` y `aria-controls` válidos, solo uno queda abierto a la vez y cada uno incluye el comando que resuelve el problema.
-- [ ] A 320px de ancho la página no tiene scroll horizontal; los bloques de código hacen su propio scroll interno.
-- [ ] Ningún enlace interno de la página da 404: cada `href` a `/docs/cli/<comando>` corresponde a un archivo real de `src/content/docs/cli/`.
-- [ ] La página no envía JavaScript de framework y no hace peticiones de red propias.
-- [ ] No hay regresión en el área: `npm run check` termina con 0 errores y la superficie de la página coincide, comando por comando y flag por flag, con la de `fwskills --help`.
+- [x] La sección 5 nombra `.opencode/skills/`, `.agents/skills/`, `.pi/skills/` y `.claude/skills/`, y marca la de Claude Code como propuesta no verificada en el repositorio.
+- [x] La sección 6 tiene una fila por cada uno de los 6 flags con descripción y ejemplo; la tabla se genera desde `CLI_FLAGS` y no desde markup escrito a mano.
+- [x] La sección 7 permite copiar `npx fwskills list` y `npx fwskills info <categoria>/<slug>`, y el copiado muestra «¡Copiado!» con anuncio `aria-live`.
+- [x] Los cinco acordeones de la sección 8 tienen `aria-expanded` y `aria-controls` válidos, solo uno queda abierto a la vez y cada uno incluye el comando que resuelve el problema.
+- [x] A 320px de ancho la página no tiene scroll horizontal; los bloques de código hacen su propio scroll interno.
+- [x] Ningún enlace interno de la página da 404: cada `href` a `/docs/cli/<comando>` corresponde a un archivo real de `src/content/docs/cli/`.
+- [x] La página no envía JavaScript de framework y no hace peticiones de red propias.
+- [x] No hay regresión en el área: `npm run check` termina con 0 errores y la superficie de la página coincide, comando por comando y flag por flag, con la de `fwskills --help`.
 
 ---
 

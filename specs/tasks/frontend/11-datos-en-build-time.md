@@ -133,18 +133,18 @@ muestre el último valor conocido u omita la métrica sin romper la compilación
 ## Criterios de Done
 
 - [ ] Un build con red disponible resuelve estrellas, contribuidores, releases y las fechas por skill, y sus valores aparecen congelados en el HTML generado.
-- [ ] El navegador no hace ninguna petición a `api.github.com`: `grep -rn 'api.github.com' frontend/src` solo devuelve coincidencias en `src/lib/github.ts`, que se ejecuta en build.
-- [ ] Un segundo build consecutivo sin cambios no hace ninguna petición a GitHub porque todo sale de la caché, y la caché vive en `node_modules/.cache/fwskills/github/`.
-- [ ] Con la red caída, el build **termina correctamente** y el sitio se genera con los valores cacheados.
-- [ ] Con la red caída y sin caché, el build **termina correctamente** y las métricas no disponibles se omiten de la interfaz; en ningún caso aparece un `0` en lugar de una métrica ausente.
+- [x] El navegador no hace ninguna petición a `api.github.com`: `grep -rn 'api.github.com' frontend/src` solo devuelve coincidencias en `src/lib/github.ts`, que se ejecuta en build.
+- [x] Un segundo build consecutivo sin cambios no hace ninguna petición a GitHub porque todo sale de la caché, y la caché vive en `node_modules/.cache/fwskills/github/`.
+- [x] Con la red caída, el build **termina correctamente** y el sitio se genera con los valores cacheados.
+- [x] Con la red caída y sin caché, el build **termina correctamente** y las métricas no disponibles se omiten de la interfaz; en ningún caso aparece un `0` en lugar de una métrica ausente.
 - [ ] Con `GITHUB_TOKEN` ausente, el build funciona con el límite no autenticado y emite un aviso en stderr que nombra la variable sin mostrar su valor.
 - [ ] Con `GITHUB_TOKEN` inválido, el build emite un aviso y continúa sin él; nunca falla por un token caducado.
-- [ ] La sección Comunidad renderiza con el número de skills —dato local— aunque GitHub no haya respondido, y el enlace al repositorio sigue presente.
+- [x] La sección Comunidad renderiza con el número de skills —dato local— aunque GitHub no haya respondido, y el enlace al repositorio sigue presente.
 - [ ] Los avatares de contribuidores se sirven desde `public/contributors/` y ninguna imagen apunta a un host externo.
 - [ ] La ficha de cada skill muestra una fecha de última actualización, y esa fecha es la del último commit del path cuando la API responde, o la fecha del build cuando no responde y no hay caché.
 - [ ] El número de peticiones a GitHub no crece con el número de skills más allá de una petición de fecha por skill.
-- [ ] `grep -rn 'ghp_\|github_pat_' frontend/` no devuelve ninguna coincidencia, y ningún valor de token aparece en un archivo versionado.
-- [ ] `GITHUB_TOKEN` no llega al bundle del navegador: no lleva el prefijo `PUBLIC_` y el HTML generado no la contiene.
+- [x] `grep -rn 'ghp_\|github_pat_' frontend/` no devuelve ninguna coincidencia, y ningún valor de token aparece en un archivo versionado.
+- [x] `GITHUB_TOKEN` no llega al bundle del navegador: no lleva el prefijo `PUBLIC_` y el HTML generado no la contiene.
 
 ---
 

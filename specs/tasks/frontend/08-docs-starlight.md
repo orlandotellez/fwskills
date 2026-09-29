@@ -163,19 +163,19 @@ claro/oscuro con el resto del sitio mediante un puente de custom properties.
 ## Criterios de Done
 
 - [ ] `/docs` sirve la documentación con barra lateral agrupada, índice de contenidos con scrollspy, navegación anterior/siguiente, buscador y drawer móvil con foco atrapado y cierre con `Esc`.
-- [ ] `/docs/introduccion`, `/docs/primeros-pasos`, las siete páginas de `/docs/cli/*`, `/docs/anatomia-de-una-skill`, las cuatro páginas de `/docs/categorias/*`, `/docs/crear-una-skill`, `/docs/compatibilidad`, `/docs/versionado`, `/docs/faq` y `/docs/changelog` responden 200.
+- [x] `/docs/introduccion`, `/docs/primeros-pasos`, las siete páginas de `/docs/cli/*`, `/docs/anatomia-de-una-skill`, las cuatro páginas de `/docs/categorias/*`, `/docs/crear-una-skill`, `/docs/compatibilidad`, `/docs/versionado`, `/docs/faq` y `/docs/changelog` responden 200.
 - [ ] `/docs/cli` redirige a `/docs/cli/init` en lugar de devolver 404.
-- [ ] El puente existe y `grep -c 'var(--sl-color' frontend/src/styles/starlight-bridge.css` devuelve un valor distinto de cero; sin ese archivo, la tarea está incompleta aunque `/docs` funcione.
+- [x] El puente existe y `grep -c 'var(--sl-color' frontend/src/styles/starlight-bridge.css` devuelve un valor distinto de cero; sin ese archivo, la tarea está incompleta aunque `/docs` funcione.
 - [ ] Una captura de `/docs/primeros-pasos` y una de `/skills` son indistinguibles en color de acento, fondo, color de enlace y color de foco.
 - [ ] El encabezado y el pie de `/docs/**` son los mismos nodos que los de `/` y `/skills`: un enlace nuevo del header aparece en la documentación sin tocar ninguna plantilla de Starlight.
-- [ ] Alternar el tema en la documentación cambia también la portada, y recargar conserva la elección mediante `fwskills:theme`.
-- [ ] Un visitante con `prefers-color-scheme: light` y sin elección previa ve la documentación en claro, igual que la portada.
+- [x] Alternar el tema en la documentación cambia también la portada, y recargar conserva la elección mediante `fwskills:theme`.
+- [x] Un visitante con `prefers-color-scheme: light` y sin elección previa ve la documentación en claro, igual que la portada.
 - [ ] Los cuatro callouts se renderizan con su rol, icono decorativo y borde de `--border-input`; el contenido del callout sigue siendo texto seleccionable y alcanzable por lector de pantalla.
 - [ ] Las pestañas de gestor de una página de docs se sincronizan con las de la portada, la ficha de skill y `/instalacion`.
 - [ ] `Ctrl/⌘+K` encuentra tanto una página de documentación como una skill, y `Enter` lleva a la página encontrada.
 - [ ] Cada página de `/docs/cli/*` documenta sintaxis, opciones, dos ejemplos, salida esperada y códigos de salida, y su contenido coincide con `specs/modules/backend/03-api.md`.
 - [ ] La documentación es la única parte del sitio que envía JavaScript, y su peso se mide y se reporta; `/`, `/skills`, `/instalacion` y `/contribuir` siguen sin JavaScript de framework.
-- [ ] No hay regresión en el área: `npm run check` termina con 0 errores, `npm run build` genera `/docs/**` y el enlace «Editar esta página» de cada una apunta a un archivo real del repositorio.
+- [x] No hay regresión en el área: `npm run check` termina con 0 errores, `npm run build` genera `/docs/**` y el enlace «Editar esta página» de cada una apunta a un archivo real del repositorio.
 
 ---
 
