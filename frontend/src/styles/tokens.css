@@ -1,0 +1,230 @@
+/* =========================================================================
+   fwskills — design tokens
+   -------------------------------------------------------------------------
+   Source of truth: specs/modules/frontend/02-design.md
+   Every text role below was measured with the WCAG 2.1 formula. The ratio is
+   recorded next to the value. Do NOT substitute, approximate or "improve"
+   these values: if a new colour is needed, add it here with its measured
+   ratio. A hex literal anywhere else in the codebase is a review defect.
+
+   Worst case for every text role is surface-elevated, not base. Verify a new
+   role against all three backgrounds before committing it.
+   ========================================================================= */
+
+/* Self-hosted variable fonts. No third-party requests: @fontsource ships the
+   WOFF2 files and Astro bundles them into the build output. unicode-range
+   subsetting is handled by the package, so only latin subsets are downloaded. */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+
+/* -------------------------------------------------------------------------
+   Dark — the default. :root carries the dark set so that a page with no
+   data-theme attribute and no JS still renders a complete, AA-compliant UI.
+   ---------------------------------------------------------------------- */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --base: #07090f; /* 17.72 is text on this */
+  --surface: #0b0e16;
+  --surface-elevated: #121623;
+  --code-bg: #121623;
+
+  /* Text */
+  --text: #eef2f8; /* 17.72 on base · 16.05 worst case */
+  --text-secondary: #a8b2c4; /* 9.32 · 8.44 */
+  --text-muted: #77839a; /* 5.21 · 4.72 — never below 13px */
+
+  /* Accent scale, derived from --accent */
+  --accent: #8aa2ff; /* 8.24 */
+  --accent-hover: #a6b8ff; /* 10.35 */
+  --accent-active: #6f8ae6; /* 6.12 */
+  --accent-soft: #16203a; /* accent text on it: 6.68 */
+  --accent-soft-hover: #1d2a4d; /* accent-hover text on it: 7.33 */
+  --accent-border: #3d4a7a; /* decorative only, 2.33 */
+
+  /* Semantic */
+  --success: #4ade80; /* 11.42 */
+  --warning: #fbbf24; /* 11.92 */
+  --error: #f87171; /* 7.20 */
+  --on-accent: #07090f; /* 8.24 on --accent */
+
+  /* Borders */
+  --border: #1e2433; /* ~1.28 — decorative hairline */
+  --border-strong: #2c3446; /* ~1.60 — hover, separators */
+  --border-input: #5f6b8a; /* 3.40 — WCAG 1.4.11, every interactive control */
+
+  /* Focus */
+  --focus-ring: var(--accent);
+  --focus-ring-offset: var(--base);
+
+  /* Syntax highlighting — all >= 4.72 on --surface-elevated */
+  --syn-comment: #77839a; /* 4.72 */
+  --syn-keyword: #a78bfa; /* 6.63 */
+  --syn-string: #86efac; /* 12.84 */
+  --syn-number: #fbbf24; /* 10.80 */
+  --syn-function: #7dd3fc; /* 10.81 */
+  --syn-type: #f0abfc; /* 10.25 */
+  --syn-variable: #e6edf7; /* 15.30 */
+  --syn-tag: #f87171; /* 6.52 */
+  --syn-attr-name: #fbbf24; /* 10.80 */
+  --syn-operator: #9aa5b8; /* 7.25 */
+  --syn-punctuation: #8b95a8; /* 5.98 */
+
+  /* Shadows — only two exist. A resting card has a border, not a shadow. */
+  --shadow-pop: 0 8px 24px rgb(0 0 0 / 0.28);
+  --shadow-header: 0 1px 0 var(--border);
+
+  /* Overlay scrim behind modals and the mobile menu. */
+  --scrim: rgb(3 6 12 / 0.6);
+
+  /* Print: paper is white regardless of the active theme. */
+  --print-bg: #ffffff;
+  --print-text: #000000;
+
+  /* Radii — 12px is the maximum */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-pill: 999px;
+
+  /* Typography */
+  --font-heading: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-body: var(--font-heading);
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular,
+    'SF Mono', Menlo, Consolas, monospace;
+
+  --text-display: 3.75rem; /* 60px / 1.1 */
+  --text-h1: 2.75rem; /* 44px / 1.15 */
+  --text-h2: 2.125rem; /* 34px / 1.2 */
+  --text-h3: 1.5rem; /* 24px / 1.3 */
+  --text-h4: 1.1875rem; /* 19px / 1.3 */
+  --text-body: 1.0625rem; /* 17px / 1.6 */
+  --text-body-sm: 0.9375rem; /* 15px / 1.6 */
+  --text-caption: 0.8125rem; /* 13px / 1.4 — the floor, never smaller */
+  --text-code: 0.875rem; /* 14px / 1.6 */
+
+  /* Spacing */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem; /* 96px — low end of section separation */
+  --space-4xl: 7.5rem; /* 120px — high end, landing sections */
+
+  /* Layout */
+  --max-width: 1200px;
+  --text-column: 800px; /* long-form reading measure */
+  --header-height: 72px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-reveal: 400ms;
+}
+
+/* -------------------------------------------------------------------------
+   Light
+   ---------------------------------------------------------------------- */
+[data-theme='light'] {
+  color-scheme: light;
+
+  --base: #ffffff;
+  --surface: #f7f8fb;
+  --surface-elevated: #eef1f7;
+  --code-bg: #eef1f7;
+
+  --text: #0d1220; /* 18.68 · 16.51 */
+  --text-secondary: #454f63; /* 8.23 · 7.27 */
+  --text-muted: #5c6678; /* 5.79 · 5.12 */
+
+  --accent: #3d54d4; /* 6.15 */
+  --accent-hover: #2b3ea8; /* 8.91 */
+  --accent-active: #24337f; /* 11.32 */
+  --accent-soft: #eaeeff; /* accent text on it: 5.32 */
+  --accent-soft-hover: #dde3ff; /* accent-hover text on it: 7.00 */
+  --accent-border: #b9c2ee; /* decorative only, 1.75 */
+
+  --success: #166534; /* 7.13 */
+  --warning: #78350f; /* 9.07 */
+  --error: #b91c1c; /* 6.47 */
+  --on-accent: #ffffff; /* 6.15 on --accent */
+
+  --border: #dfe3ec;
+  --border-strong: #c3cad8;
+  --border-input: #828b9c; /* 3.03 */
+
+  --focus-ring: var(--accent);
+  --focus-ring-offset: var(--base);
+
+  --syn-comment: #5c6678; /* 5.12 */
+  --syn-keyword: #7c3aed; /* 5.04 */
+  --syn-string: #166534; /* 6.30 */
+  --syn-number: #92400e; /* 6.27 */
+  --syn-function: #0e7490; /* 4.74 */
+  --syn-type: #a21caf; /* 5.59 */
+  --syn-variable: #0d1220; /* 16.51 */
+  --syn-tag: #b91c1c; /* 5.72 */
+  --syn-attr-name: #92400e; /* 6.27 */
+  --syn-operator: #5c6678; /* 5.12 */
+  --syn-punctuation: #5c6678; /* 5.12 */
+
+  --shadow-pop: 0 8px 24px rgb(13 18 32 / 0.1);
+  --shadow-header: 0 1px 0 var(--border);
+
+  --scrim: rgb(13 18 32 / 0.5);
+
+  --print-bg: #ffffff;
+  --print-text: #000000;
+}
+
+/* No explicit choice by the user: follow the operating system. The
+   :not([data-theme]) guard keeps an explicit choice authoritative. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+
+    --base: #ffffff;
+    --surface: #f7f8fb;
+    --surface-elevated: #eef1f7;
+    --code-bg: #eef1f7;
+
+    --text: #0d1220;
+    --text-secondary: #454f63;
+    --text-muted: #5c6678;
+
+    --accent: #3d54d4;
+    --accent-hover: #2b3ea8;
+    --accent-active: #24337f;
+    --accent-soft: #eaeeff;
+    --accent-soft-hover: #dde3ff;
+    --accent-border: #b9c2ee;
+
+    --success: #166534;
+    --warning: #78350f;
+    --error: #b91c1c;
+    --on-accent: #ffffff;
+
+    --border: #dfe3ec;
+    --border-strong: #c3cad8;
+    --border-input: #828b9c;
+
+    --syn-comment: #5c6678;
+    --syn-keyword: #7c3aed;
+    --syn-string: #166534;
+    --syn-number: #92400e;
+    --syn-function: #0e7490;
+    --syn-type: #a21caf;
+    --syn-variable: #0d1220;
+    --syn-tag: #b91c1c;
+    --syn-attr-name: #92400e;
+    --syn-operator: #5c6678;
+    --syn-punctuation: #5c6678;
+
+    --shadow-pop: 0 8px 24px rgb(13 18 32 / 0.1);
+  }
+}

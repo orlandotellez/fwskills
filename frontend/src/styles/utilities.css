@@ -1,0 +1,340 @@
+/* =========================================================================
+   fwskills — utilities and shared primitives
+   The classes every page composes from. Kept deliberately small: if a page
+   needs a new one-off shape, it belongs in the component, not here.
+   ========================================================================= */
+
+/* ---------------------------------------------------------------- layout */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--space-xl);
+}
+
+.text-column {
+  max-width: var(--text-column);
+  margin-inline: auto;
+}
+
+.section {
+  padding-block: var(--space-3xl);
+}
+
+.section--tall {
+  padding-block: var(--space-4xl);
+}
+
+.section--alt {
+  background: var(--surface);
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--space-sm);
+  top: var(--space-sm);
+  z-index: 200;
+  padding: var(--space-2xs) var(--space-sm);
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  color: var(--on-accent);
+}
+
+/* -------------------------------------------------------- section heading */
+.section-eyebrow {
+  display: flex;
+  width: fit-content;
+  margin-inline: auto;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: var(--space-3xs) var(--space-xs);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-pill);
+}
+
+.section-title {
+  font-size: var(--text-h2);
+  text-align: center;
+  margin: var(--space-sm) 0 var(--space-2xs);
+}
+
+.section-subtitle {
+  font-size: var(--text-body);
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 640px;
+  margin-inline: auto;
+  margin-block-end: var(--space-2xl);
+}
+
+.section-heading {
+  font-size: var(--text-h2);
+  margin-block-end: var(--space-2xs);
+}
+
+.section-heading--start {
+  text-align: start;
+}
+
+.lede {
+  font-size: var(--text-body);
+  color: var(--text-secondary);
+  max-width: 560px;
+}
+
+/* ------------------------------------------------------------- buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
+  padding: 0.875rem 2rem;
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  text-align: center;
+  transition:
+    background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+
+/* Primary — accent fill with the measured on-accent pair (8.24:1 dark,
+   6.15:1 light). The old implementation hovered to #8aa2ff while keeping
+   white text, which measured 2.42:1. */
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: var(--on-accent);
+}
+
+.btn-primary:active {
+  background: var(--accent-active);
+  border-color: var(--accent-active);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+.btn-secondary:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border-input);
+}
+
+.btn-ghost:hover {
+  background: var(--surface-elevated);
+  color: var(--text);
+}
+
+.btn--sm {
+  padding: var(--space-2xs) var(--space-sm);
+  font-size: var(--text-caption);
+}
+
+/* Icon-only control: keeps a 44px touch target on mobile. */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+
+.btn-icon:hover {
+  background: var(--surface-elevated);
+  color: var(--text);
+}
+
+/* --------------------------------------------------------------- surfaces */
+.card {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  /* A resting card carries a border, never a shadow. */
+  transition:
+    border-color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+}
+
+.card--interactive:hover {
+  border-color: var(--accent-border);
+}
+
+.card--interactive:focus-within {
+  border-color: var(--accent);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3xs);
+  padding: var(--space-3xs) var(--space-xs);
+  background: var(--surface-elevated);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+}
+
+.tag--accent {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+/* Semantic messaging. Colour carries meaning here and nowhere else. */
+.callout {
+  display: flex;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-elevated);
+  font-size: var(--text-body-sm);
+  color: var(--text-secondary);
+}
+
+.callout--note {
+  border-inline-start: 3px solid var(--accent);
+}
+
+.callout--success {
+  border-inline-start: 3px solid var(--success);
+}
+
+.callout--warning {
+  border-inline-start: 3px solid var(--warning);
+}
+
+.callout--danger {
+  border-inline-start: 3px solid var(--error);
+}
+
+/* ------------------------------------------------------------------ grids */
+.grid-2,
+.grid-3,
+.grid-4 {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+  align-items: center;
+}
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* ------------------------------------------------------------ scroll reveal */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity var(--duration-reveal) var(--ease-out),
+    transform var(--duration-reveal) var(--ease-out);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------- responsive */
+@media (max-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --text-display: 2.75rem;
+    --text-h1: 2.25rem;
+    --text-h2: 1.75rem;
+    --space-3xl: 4rem;
+    --space-4xl: 4rem;
+  }
+
+  .section,
+  .section--tall {
+    padding-block: var(--space-2xl);
+  }
+
+  .container {
+    padding-inline: var(--space-md);
+  }
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn {
+    width: 100%;
+  }
+}
+
+/* Print: drop the chrome, keep the content. */
+@media print {
+  .site-header,
+  .site-footer {
+    display: none;
+  }
+
+  body {
+    background: var(--print-bg);
+    color: var(--print-text);
+  }
+}
