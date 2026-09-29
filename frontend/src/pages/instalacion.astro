@@ -1,0 +1,1049 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import PackageTabs from '../components/PackageTabs.astro';
+import Accordion from '../components/Accordion.astro';
+
+/**
+ * The CLI surface, mirrored from specs/modules/backend/03-api.md: seven
+ * commands and six flags, nothing more. Keeping it in one array means the
+ * tables below and `fwskills --help` describe the same API.
+ *
+ * Spec task 07 asks for a shared `src/lib/cli-contract.ts`. It is not created
+ * here because this change is scoped to the three page files; the constants
+ * belong in that module as soon as a second page needs them.
+ */
+const commands = [
+  {
+    n: '01',
+    id: 'requisitos',
+    title: 'Requisitos',
+  },
+  {
+    n: '02',
+    id: 'uso-sin-instalar',
+    title: 'Uso sin instalar',
+  },
+  {
+    n: '03',
+    id: 'instalacion-global',
+    title: 'Instalación global y como dependencia de desarrollo',
+  },
+  {
+    n: '04',
+    id: 'comandos',
+    title: 'Comandos disponibles',
+  },
+  {
+    n: '05',
+    id: 'destinos',
+    title: 'Dónde se instalan las skills',
+  },
+  {
+    n: '06',
+    id: 'flags',
+    title: 'Flags principales',
+  },
+  {
+    n: '07',
+    id: 'verificar',
+    title: 'Verificar la instalación',
+  },
+  {
+    n: '08',
+    id: 'problemas',
+    title: 'Solución de problemas comunes',
+  },
+  {
+    n: '09',
+    id: 'versionado',
+    title: 'Versionado y actualización',
+  },
+];
+
+/** Minimum supported Node, matching `engines.node` in the package manifest. */
+const NODE_MIN = '>=22.12.0';
+
+const CLI_COMMANDS = [
+  {
+    name: 'init',
+    summary:
+      'Crea las carpetas de destino de las skills para los agentes detectados en el proyecto. Es el paso previo a add: sin destino, add termina con código 7.',
+    example: 'npx fwskills init',
+  },
+  {
+    name: 'list',
+    summary:
+      'Lista las skills disponibles en el catálogo con su categoría y versión. Acepta --category en cualquier posición.',
+    example: 'npx fwskills list --category specs',
+  },
+  {
+    name: 'search <consulta>',
+    summary:
+      'Busca skills por nombre, descripción y etiquetas. Ignora mayúsculas y acentos y coincide por subcadena.',
+    example: 'npx fwskills search design',
+  },
+  {
+    name: 'add <categoría>/<slug>',
+    summary:
+      'Instala una skill. Con --category instala todas las de esa categoría, y falla completa si alguna no se puede instalar.',
+    example: 'npx fwskills add specs/create-specs',
+  },
+  {
+    name: 'remove <categoría>/<slug>',
+    summary:
+      'Desinstala una skill instalada por el CLI. Solo borra lo que el CLI construyó: los archivos que hayas añadido a mano se conservan.',
+    example: 'npx fwskills remove specs/create-specs --yes',
+  },
+  {
+    name: 'update [categoría>/<slug]',
+    summary:
+      'Actualiza a la versión publicada. Sin argumento actualiza todas las skills instaladas por el CLI.',
+    example: 'npx fwskills update',
+  },
+  {
+    name: 'info <categoría>/<slug>',
+    summary:
+      'Muestra versión, autor, compatibilidad, archivos y ruta de destino. Nunca escribe en disco.',
+    example: 'npx fwskills info specs/create-specs',
+  },
+];
+
+const CLI_FLAGS = [
+  {
+    flag: '--dir <ruta>',
+    description:
+      'Sobrescribe la raíz de destino. Tiene la máxima precedencia: gana sobre la detección de agente y sobre --global.',
+    example: 'npx fwskills add specs/create-specs --dir ~/skills',
+  },
+  {
+    flag: '--global',
+    description:
+      'Instala en la configuración global del agente en lugar de la del proyecto. Cambia el ámbito de la detección, no la ruta de forma arbitraria.',
+    example: 'npx fwskills add specs/create-specs --global',
+  },
+  {
+    flag: '--force',
+    description: 'Sobrescribe los archivos existentes sin preguntar.',
+    example: 'npx fwskills add specs/create-specs --force',
+  },
+  {
+    flag: '--dry-run',
+    description: 'Muestra el plan completo —rutas, acciones y destino— y no cambia nada.',
+    example: 'npx fwskills add specs/create-specs --dry-run',
+  },
+  {
+    flag: '--yes',
+    description: 'Responde sí a todas las confirmaciones y deja el CLI completamente no interactivo.',
+    example: 'npx fwskills add --category specs --yes',
+  },
+  {
+    flag: '--category <categoría>',
+    description: 'Restringe add a una categoría completa; en list, limita el resultado a una categoría.',
+    example: 'npx fwskills add --category specs',
+  },
+];
+
+const DESTINATIONS = [
+  { agent: 'opencode', path: '.opencode/skills/', status: 'Verificada: existe' },
+  { agent: 'Agentes genéricos', path: '.agents/skills/', status: 'Verificada: existe' },
+  { agent: 'pi', path: '.pi/skills/', status: 'Verificada: existe' },
+  {
+    agent: 'Claude Code',
+    path: '.claude/skills/',
+    status: 'Objetivo propuesto, no verificado en el repositorio',
+  },
+];
+
+const PRECEDENCE = [
+  {
+    n: '1',
+    title: '--dir gana siempre',
+    body: 'Si pasas una ruta explícita, esa ruta es el destino. Ninguna otra regla se evalúa.',
+  },
+  {
+    n: '2',
+    title: 'La carpeta del agente detectada en el proyecto',
+    body: 'Busca .opencode/, .agents/ o .pi/ desde la raíz del proyecto y usa la carpeta de skills de ese agente.',
+  },
+  {
+    n: '3',
+    title: 'La configuración global del agente, con --global',
+    body: 'El flag cambia el ámbito de la detección: se sigue buscando un agente y, si se encuentra, se usa su configuración global.',
+  },
+  {
+    n: '4',
+    title: 'Si no hay agente detectable, error',
+    body: 'El CLI termina con el código 7 e indica cómo resolverlo. No elige una carpeta arbitraria.',
+  },
+];
+
+const troubleshooting = [
+  {
+    question: 'El comando no encuentra la skill',
+    content: `<p>El CLI acepta la referencia en el formato exacto <code>&lt;categoría&gt;/&lt;slug&gt;</code>: un solo <code>/</code>, minúsculas, guiones y sin acentos. <code>Specs/Crear Specs</code> no es un nombre válido.</p>
+<p>La causa más común no es el formato sino el destino equivocado: la skill se instaló en la carpeta de otro agente. <code>fwskills info &lt;categoría&gt;/&lt;slug&gt;</code> imprime la ruta de destino resuelta sin tocar el disco. Si el agente no encuentra la skill, esa línea es lo primero que hay que mirar.</p>`,
+  },
+  {
+    question: 'Se instaló en la carpeta equivocada',
+    content: `<p>El destino lo decide la precedencia de la sección 5, y solo tú puedes forzarla. Para mover una skill instalada:</p>
+<pre><code>npx fwskills remove specs/create-specs --dir ~/.pi/skills
+npx fwskills add specs/create-specs --dir ~/.opencode/skills</code></pre>
+<p>Con <code>--dir</code> apuntando explícitamente, la instalación deja de depender de qué agente se detecte en cada proyecto. Es la opción más predecible cuando trabajas con varios agentes a la vez.</p>`,
+  },
+  {
+    question: 'La skill no aparece en el catálogo',
+    content: `<p><code>fwskills list</code> lee el catálogo publicado, no lo que tienes en el disco. Si instalaste la skill a mano en una carpeta local, no va a aparecer: el catálogo es el conjunto de carpetas del repositorio.</p>
+<p>Si la carpeta existe en el repositorio y aun así no aparece, la causa habitual es un <code>SKILL.md</code> que no valida: si el esquema falla, el build del sitio se detiene y la entrada no llega a publicarse. Ejecuta <code>npm run validate</code> en el repositorio para ver el error exacto.</p>`,
+  },
+  {
+    question: 'Permission denied al escribir',
+    content: `<p>El destino pertenece a otro usuario o el árbol de permisos no permite escribir. El CLI no intenta escalarlo: informa y termina con código 1.</p>
+<p>Dos salidas. La primera es instalar en un destino propio del proyecto, que es la configuración por defecto y no requiere permisos especiales. La segunda es instalar con <code>--global</code> en la configuración del agente, que en un sistema con instalación por paquetes suele exigir privilegios que no tienes de forma normal.</p>
+<pre><code>npx fwskills add specs/create-specs --dir ~/.opencode/skills</code></pre>`,
+  },
+  {
+    question: 'Quiero una versión anterior de una skill',
+    content: `<p>El CLI no resuelve versiones: <code>add</code> instala la versión publicada y <code>update</code> lleva lo instalado a esa misma versión. Fijar una versión concreta significa sacarle el control al CLI.</p>
+<p>La vía directa es desinstalar la skill y volver a copiar la carpeta de la versión que necesitas, con el commit fijado en el repositorio de origen.</p>
+<pre><code>npx fwskills remove specs/create-specs</code></pre>
+<p>Si dependes de una versión concreta en producción, fija el commit en tu propio repositorio. Es reversible, auditable y no depende de que el CLI sepa resolver versiones, que no es su trabajo.</p>`,
+  },
+  {
+    question: 'La instalación se detiene con el código 7',
+    content: `<p>El código 7 es <em>NoCompatibleAgent</em>: el CLI no encontró ninguna configuración de agente y no se le pasó <code>--dir</code>. El mensaje dice exactamente qué hacer.</p>
+<pre><code>error: no se detectó ninguna configuración de agente en este proyecto
+error: ejecuta \`npx fwskills init\` para preparar las carpetas, o pasa --dir &lt;ruta&gt;</code></pre>
+<p><code>fwskills init</code> prepara las carpetas de los agentes que detecta, y <code>--dir</code> salta la detección por completo. Los dos caminos son válidos; el segundo es el predecible.</p>`,
+  },
+];
+
+const LIST_OUTPUT = `design/dark-luxury                     1.0.0   design
+design/glassmorphism                   1.1.0   design
+design/minimal-dashboard               1.0.0   design
+design/minimal-light                   1.1.0   design
+design/neo-brutalist                   1.0.0   design
+specs/create-specs                     2.0.0   specs
+specs/create-specs-from-code           1.0.0   specs
+
+list: 7 skills en 2 categorías`;
+
+const INFO_OUTPUT = `specs/create-specs
+  version        2.0.0
+  category       specs
+  author         orlandotellez
+  compatibility  opencode, agents, pi, claude
+  tags           specs, documentación, scaffold
+  featured       sí
+
+  destino        /home/tu/proyecto/.opencode/skills/specs/create-specs
+  instalado      no`;
+---
+
+<Layout
+  title="Instalación — fwskills"
+  description="Instala el CLI de fwskills o usa npx sin instalar. Los 7 comandos, los 6 flags, dónde se instalan las skills y cómo resolver los errores más habituales."
+  ogImage="/og-default.svg"
+>
+  <section class="page-head">
+    <div class="container">
+      <Breadcrumbs
+        items={[{ label: 'Inicio', href: '/' }, { label: 'Instalación' }]}
+      />
+      <h1 class="page-head__title">Instalación</h1>
+      <p class="page-head__lede">
+        Hay dos formas de usar <code>fwskills</code>: ejecutarlo con <code>npx</code> sin
+        instalar nada, o instalarlo como dependencia. Esta página explica las dos, los
+        comandos disponibles, dónde queda cada skill instalada y qué hacer cuando algo falla.
+      </p>
+    </div>
+  </section>
+
+  <div class="container page">
+    <aside class="toc">
+      <p class="toc__label">En esta página</p>
+      <ol class="toc__list">
+        {
+          commands.map((section) => (
+            <li>
+              <a class="toc__link" href={`#${section.id}`} data-toc-link={section.id}>
+                <span class="toc__n">{section.n}</span>
+                {section.title}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </aside>
+
+    <article class="doc">
+      <details class="toc-mobile">
+        <summary class="toc-mobile__summary">En esta página</summary>
+        <ol class="toc-mobile__list">
+          {
+            commands.map((section) => (
+              <li>
+                <a href={`#${section.id}`}>
+                  <span class="toc-mobile__n">{section.n}</span>
+                  {section.title}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </details>
+
+      <!-- ── 1 · Requisitos ──────────────────────────────────────────── -->
+      <section class="doc__section" id="requisitos">
+        <h2 class="doc__heading"><span class="doc__n">01</span>Requisitos</h2>
+        <p>
+          La versión mínima de Node es <code>{NODE_MIN}</code>. Cualquier versión anterior
+          no funciona y el gestor de paquetes lo avisa antes de instalar nada.
+        </p>
+        <CodeBlock code="node -v" lang="bash" label="Comprobar la versión de Node" />
+        <p>
+          No hay nada más que preparar. El CLI no necesita base de datos, ni contenedor, ni
+          Docker, ni credenciales, ni cuenta. Es un paquete de npm que descarga carpetas y
+          las copia: por eso la única dependencia real es tener Node instalado.
+        </p>
+        <div class="callout callout--note">
+          <span>
+            Un gestor de paquetes es suficiente para usar <code>npx</code>, que es la vía
+            recomendada. Si prefieres el comando <code>fwskills</code> sin el prefijo, instala
+            el CLI como se explica en la sección 3.
+          </span>
+        </div>
+      </section>
+
+      <!-- ── 2 · Uso sin instalar ────────────────────────────────────── -->
+      <section class="doc__section" id="uso-sin-instalar">
+        <h2 class="doc__heading"><span class="doc__n">02</span>Uso sin instalar</h2>
+        <p>
+          La forma más rápida de probar una skill es <code>npx</code>: descarga el CLI, lo
+          ejecuta y no deja nada instalado en tu proyecto. Es la vía recomendada para probar
+          antes de comprometerte con una instalación.
+        </p>
+        <PackageTabs command="fwskills add specs/create-specs" label="Ejecutar sin instalar" />
+        <p>
+          El gestor elegido se recuerda entre visitas, así que la segunda vez que vuelvas ya
+          verás tu comando con el prefijo que usas. Ninguna de estas cuatro formas escribe en
+          tu proyecto: solo deja la skill en la carpeta del agente.
+        </p>
+        <div class="callout callout--warning">
+          <span>
+            <code>npx</code> descarga el paquete en cada invocación. Si vas a instalar muchas
+            skills, conviene instalarlo una vez y trabajar con el comando corto.
+          </span>
+        </div>
+      </section>
+
+      <!-- ── 3 · Instalación global y como devDependency ─────────────── -->
+      <section class="doc__section" id="instalacion-global">
+        <h2 class="doc__heading">
+          <span class="doc__n">03</span>Instalación global y como dependencia de desarrollo
+        </h2>
+        <p>
+          Hay dos instalaciones permanentes, y la elección depende de quién usa el proyecto.
+          Con instalación global el comando <code>fwskills</code> está disponible en tu
+          terminal, en cualquier directorio. Como dependencia de desarrollo queda declarado
+          en <code>package.json</code> y viaja con el proyecto.
+        </p>
+
+        <h3 class="doc__subheading">Global, en tu máquina</h3>
+        <CodeBlock
+          code="npm install -g fwskills"
+          lang="bash"
+          label="Instalar el CLI globalmente"
+        />
+        <p>
+          A partir de aquí puedes escribir <code>fwskills add specs/create-specs</code> sin
+          el prefijo del gestor. Es cómodo para uso personal, y es la opción que conviene
+          evitar en un proyecto con equipo: cada persona puede tener una versión distinta.
+        </p>
+
+        <h3 class="doc__subheading">Como dependencia de desarrollo</h3>
+        <CodeBlock code="npm install -D fwskills" lang="bash" label="Añadir como devDependency" />
+        <p>
+          La diferencia es la misma que hay entre una herramienta global y una del proyecto:
+          la global vive en tu máquina y no la declara nadie; la del proyecto queda fijada en
+          <code>package.json</code> y en el lockfile, de modo que todo el equipo instala la
+          misma versión. En CI y en Docker, esta es la única opción que se reproduce.
+        </p>
+        <div class="callout callout--note">
+          <span>
+            Con pnpm el equivalente es <code>pnpm add -D fwskills</code>; con bun,{' '}
+            <code>bun add -d fwskills</code>. El nombre del paquete es el mismo.
+          </span>
+        </div>
+      </section>
+
+      <!-- ── 4 · Comandos disponibles ────────────────────────────────── -->
+      <section class="doc__section" id="comandos">
+        <h2 class="doc__heading"><span class="doc__n">04</span>Comandos disponibles</h2>
+        <p>
+          Siete comandos, y nada fuera de esta lista. La referencia completa de cada uno vive
+          en <a href="/docs/introduccion/">la documentación del CLI</a>.
+        </p>
+
+        <div class="table-wrap">
+          <table class="table">
+            <caption class="table__caption">
+              Los 7 comandos de <code>fwskills</code>, con su forma más corta y un ejemplo.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Comando</th>
+                <th scope="col">Qué hace</th>
+                <th scope="col">Ejemplo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                CLI_COMMANDS.map((command) => (
+                  <tr>
+                    <th scope="row">
+                      <code>{command.name}</code>
+                    </th>
+                    <td>{command.summary}</td>
+                    <td>
+                      <code class="table__code">{command.example}</code>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          La forma <code>add --category &lt;categoría&gt;</code> instala la categoría
+          completa, no una skill. Instala todas las skills de esa categoría en orden alfabético
+          y, si alguna falla, no deja la categoría a medias.
+        </p>
+        <CodeBlock
+          code="npx fwskills add --category specs"
+          lang="bash"
+          label="Instalar una categoría completa"
+        />
+        <div class="callout callout--warning">
+          <span>
+            <code>add</code> sin argumento no instala «todo». Es un error de uso, con el
+            código 2, precisamente para que nadie instale el catálogo entero por accidente.
+            Para eso está <code>--category</code>.
+          </span>
+        </div>
+      </section>
+
+      <!-- ── 5 · Dónde se instalan las skills ────────────────────────── -->
+      <section class="doc__section" id="destinos">
+        <h2 class="doc__heading"><span class="doc__n">05</span>Dónde se instalan las skills</h2>
+        <p>
+          Cada agente lee sus skills de una carpeta concreta dentro del proyecto. El CLI
+          detecta cuál existe y escribe ahí, de modo que la instalación no requiere
+          configuración posterior: el agente encuentra lo que acaba de instalarse.
+        </p>
+
+        <div class="table-wrap">
+          <table class="table">
+            <caption class="table__caption">
+              Carpeta de destino por defecto de cada agente, con su estado en el repositorio.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Destino</th>
+                <th scope="col">Agente</th>
+                <th scope="col">Ruta</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                DESTINATIONS.map((destination) => (
+                  <tr>
+                    <th scope="row">
+                      <code class="table__code">{destination.path}</code>
+                    </th>
+                    <td>{destination.agent}</td>
+                    <td>
+                      <span class="table__status">
+                        <span class="tag tag--accent">
+                          {destination.status.includes('propuesto') ? 'Propuesto' : 'Verificada'}
+                        </span>
+                        <span class="table__status-text">{destination.status}</span>
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          <code>.claude/skills/</code> aparece como destino propuesto y no está verificado en
+          el repositorio. El CLI lo reconoce, pero la carpeta todavía no existe en el árbol
+          versionado, así que no cuentes con él sin probarlo.
+        </p>
+
+        <h3 class="doc__subheading">Cómo se decide el destino</h3>
+        <p>
+          Las reglas se evalúan en orden y gana la primera que aplica. Entenderlas es la
+          diferencia entre «el CLI no funciona» y «el CLI eligió otra carpeta».
+        </p>
+        <ol class="precedence">
+          {
+            PRECEDENCE.map((rule) => (
+              <li class="precedence__item">
+                <span class="precedence__n" aria-hidden="true">
+                  {rule.n}
+                </span>
+                <div>
+                  <p class="precedence__title">{rule.title}</p>
+                  <p class="precedence__body">{rule.body}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+        <p>
+          Cuando se detectan varios agentes, el orden de preferencia es
+          <code>opencode</code> → <code>pi</code> → <code>agents</code> → <code>claude</code>.
+          Con <code>--global</code> la instalación sí alcanza a todos los agentes detectados,
+          no solo al preferido.
+        </p>
+        <CodeBlock
+          code="npx fwskills add specs/create-specs --dry-run"
+          lang="bash"
+          label="Ver el destino antes de escribir"
+        />
+        <p>
+          <code>--dry-run</code> imprime el destino resuelto sin escribir nada. Es la forma
+          más rápida de saber dónde va a caer una skill en tu máquina concreta.
+        </p>
+      </section>
+
+      <!-- ── 6 · Flags principales ──────────────────────────────────── -->
+      <section class="doc__section" id="flags">
+        <h2 class="doc__heading"><span class="doc__n">06</span>Flags principales</h2>
+        <p>Seis flags, comunes a los distintos comandos.</p>
+
+        <div class="table-wrap">
+          <table class="table">
+            <caption class="table__caption">
+              Los 6 flags del CLI, con su efecto y un ejemplo de uso.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Flag</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Ejemplo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                CLI_FLAGS.map((flag) => (
+                  <tr>
+                    <th scope="row">
+                      <code>{flag.flag}</code>
+                    </th>
+                    <td>{flag.description}</td>
+                    <td>
+                      <code class="table__code">{flag.example}</code>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          No existen formas cortas, y no las va a haber: un flag de una letra junto a un
+          comando como <code>add</code> es ilegible. <code>--flag valor</code> y
+          <code>--flag=valor</code> son equivalentes, y un flag repetido toma el último valor.
+        </p>
+        <div class="callout callout--note">
+          <span>
+            <code>--dry-run</code> y <code>--force</code> se combinan sin conflicto. El
+            primero muestra el plan completo y el segundo autoriza sobrescribir: si quitas el
+            primero y lo ejecutas.
+          </span>
+        </div>
+      </section>
+
+      <!-- ── 7 · Verificar la instalación ───────────────────────────── -->
+      <section class="doc__section" id="verificar">
+        <h2 class="doc__heading"><span class="doc__n">07</span>Verificar la instalación</h2>
+        <p>
+          <code>list</code> lee el catálogo y no toca tu disco. Es el comando para confirmar
+          que el CLI funciona y que hay red.
+        </p>
+        <CodeBlock code="npx fwskills list" lang="bash" label="Listar el catálogo" />
+        <p>Una salida sana son las skills del catálogo, una por línea, y un resumen al final:</p>
+        <CodeBlock code={LIST_OUTPUT} lang="text" filename="salida" nocopy />
+        <p>
+          Si <code>list</code> funciona, el problema nunca es la instalación del CLI. Para
+          comprobar una skill concreta, <code>info</code> muestra la metadata resuelta y la
+          ruta donde se instalaría, y nunca escribe nada en disco:
+        </p>
+        <CodeBlock
+          code="npx fwskills info specs/create-specs"
+          lang="bash"
+          label="Ver la metadata de una skill"
+        />
+        <CodeBlock code={INFO_OUTPUT} lang="text" filename="salida" nocopy />
+        <p>
+          La línea <code>instalado</code> dice si la skill está en el destino resuelto, y la
+          línea <code>destino</code> dice dónde. Con esos dos datos, cualquier problema de la
+          sección 8 se resuelve mirando, no adivinando.
+        </p>
+      </section>
+
+      <!-- ── 8 · Solución de problemas ──────────────────────────────── -->
+      <section class="doc__section" id="problemas">
+        <h2 class="doc__heading">
+          <span class="doc__n">08</span>Solución de problemas comunes
+        </h2>
+        <p>
+          Los seis fallos que aparecen una y otra vez, con su causa y el comando que los
+          resuelve.
+        </p>
+        <Accordion items={troubleshooting} exclusive />
+      </section>
+
+      <!-- ── 9 · Versionado y actualización ─────────────────────────── -->
+      <section class="doc__section" id="versionado">
+        <h2 class="doc__heading"><span class="doc__n">09</span>Versionado y actualización</h2>
+        <p>
+          Cada skill tiene su propia versión, independiente de la del CLI, y sigue
+          <a href="/docs/versionado/">SemVer</a>: <code>MAJOR</code> para un cambio incompatible,{' '}
+          <code>MINOR</code> cuando agregas algo, <code>PATCH</code> cuando corriges. El CLI
+          valida el formato al instalar y rechaza lo que no lo cumpla.
+        </p>
+        <CodeBlock code="npx fwskills update" lang="bash" label="Actualizar todo" />
+        <p>
+          Sin argumento, <code>update</code> actualiza todas las skills instaladas. Con una
+          referencia, solo esa. Antes de escribir nada, <code>--dry-run</code> muestra qué
+          versiones nuevas hay disponibles.
+        </p>
+        <CodeBlock
+          code="npx fwskills update --dry-run"
+          lang="bash"
+          label="Ver las actualizaciones disponibles"
+        />
+        <p>
+          Para fijar una versión concreta, <code>update</code> no es la herramienta. El CLI
+          instala siempre la versión publicada, así que la forma limpia es desinstalar la
+          skill y volver a copiar la carpeta de la versión que necesitas desde el commit que
+          te interesa. Si dependes de una versión fija en producción, fija ese commit en tu
+          repositorio: es reversible y auditable, y no depende de que el CLI resuelva
+          versiones, que no es su trabajo.
+        </p>
+        <div class="callout callout--note">
+          <span>
+            <code>update</code> solo actúa sobre skills instaladas por el CLI, que reconoce por
+            su archivo de manifiesto <code>.fwskills.json</code>. Si copiaste una carpeta a
+            mano, el CLI la deja en paz.
+          </span>
+        </div>
+      </section>
+    </article>
+  </div>
+
+  <!-- ── Cierre ──────────────────────────────────────────────────────── -->
+  <section class="cta">
+    <div class="container cta__inner">
+      <h2 class="cta__title">Todo instalado. Ahora elegí tu skill</h2>
+      <p class="cta__body">
+        Cada skill es una carpeta con un <code>SKILL.md</code> que tu agente ya sabe leer.
+        Elige una del catálogo e instálala con un comando.
+      </p>
+      <div class="cta__actions">
+        <a class="btn btn-primary" href="/skills">Explorar skills</a>
+        <a class="btn btn-secondary" href="/docs/introduccion/">Leer la documentación</a>
+      </div>
+      <p class="cta__more">
+        ¿Buscabas una skill que no está? <a href="/contribuir">Puedes escribirla →</a>
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ── Page head ──────────────────────────────────────────────────── */
+  .page-head {
+    padding-block: var(--space-xl) var(--space-2xl);
+  }
+
+  .page-head__title {
+    margin-block: var(--space-2xs) var(--space-2xs);
+  }
+
+  .page-head__lede {
+    max-width: 60ch;
+    color: var(--text-secondary);
+  }
+
+  /* ── Two-column layout ─────────────────────────────────────────── */
+  .page {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: var(--space-2xl);
+    padding-block-end: var(--space-4xl);
+  }
+
+  .doc {
+    max-width: 820px;
+  }
+
+  /* ── Sticky index ──────────────────────────────────────────────── */
+  .toc {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-lg));
+    align-self: start;
+    max-height: calc(100vh - var(--header-height) - var(--space-2xl));
+    overflow-y: auto;
+  }
+
+  .toc__label {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-block-end: var(--space-xs);
+  }
+
+  .toc__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+  }
+
+  .toc__link {
+    display: grid;
+    grid-template-columns: 1.75rem 1fr;
+    gap: var(--space-2xs);
+    align-items: start;
+    font-size: var(--text-caption);
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .toc__link:hover {
+    color: var(--accent);
+  }
+
+  .toc__n {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Scroll-spy state, set by the observer below. */
+  .toc__link.is-active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .toc__link.is-active .toc__n {
+    color: var(--accent);
+  }
+
+  /* The desktop index is the only one shown from 1024px up. */
+  .toc-mobile {
+    display: none;
+  }
+
+  /* ── Sections ──────────────────────────────────────────────────── */
+  .doc__section + .doc__section {
+    margin-block-start: var(--space-2xl);
+    padding-block-start: var(--space-2xl);
+    border-block-start: 1px solid var(--border);
+  }
+
+  .doc__section > * + * {
+    margin-block-start: var(--space-md);
+  }
+
+  .doc__heading {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    font-size: var(--text-h3);
+    line-height: 1.3;
+  }
+
+  /* The number is decorative: the index already names the section. */
+  .doc__n {
+    font-family: var(--font-mono);
+    font-size: var(--text-body);
+    font-weight: 600;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .doc__subheading {
+    font-size: var(--text-h4);
+    margin-block-start: var(--space-md);
+  }
+
+  .doc p {
+    color: var(--text-secondary);
+  }
+
+  /* ── Tables ────────────────────────────────────────────────────── */
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-body-sm);
+  }
+
+  .table__caption {
+    caption-side: top;
+    text-align: start;
+    font-size: var(--text-caption);
+    color: var(--text-muted);
+    padding-block-end: var(--space-2xs);
+  }
+
+  .table th,
+  .table td {
+    text-align: start;
+    vertical-align: top;
+    padding: var(--space-xs) var(--space-sm);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .table thead th {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .table tbody th {
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  .table tbody tr:last-child th,
+  .table tbody tr:last-child td {
+    border-block-end: 0;
+  }
+
+  .table__code {
+    white-space: nowrap;
+  }
+
+  .table__status {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+
+  .table__status-text {
+    color: var(--text-muted);
+    font-size: var(--text-caption);
+  }
+
+  /* ── Precedence list ───────────────────────────────────────────── */
+  .precedence {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .precedence__item {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: var(--space-sm);
+    align-items: start;
+  }
+
+  .precedence__n {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-pill);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+    font-weight: 600;
+  }
+
+  .precedence__title {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .precedence__body {
+    color: var(--text-secondary);
+    font-size: var(--text-body-sm);
+    margin-block-start: var(--space-3xs);
+  }
+
+  /* ── CTA ───────────────────────────────────────────────────────── */
+  .cta {
+    background: var(--accent-soft);
+    border-block: 1px solid var(--accent-border);
+    padding-block: var(--space-4xl);
+  }
+
+  .cta__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    text-align: center;
+  }
+
+  .cta__title {
+    font-size: var(--text-h2);
+  }
+
+  .cta__body {
+    color: var(--text-secondary);
+    max-width: 52ch;
+  }
+
+  .cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-2xs);
+  }
+
+  .cta__more {
+    font-size: var(--text-body-sm);
+    color: var(--text-secondary);
+    margin-block-start: var(--space-sm);
+  }
+
+  /* ── Responsive ────────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .page {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .toc {
+      display: none;
+    }
+
+    /* The index moves above the content, still complete. */
+    .toc-mobile {
+      display: block;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--surface-elevated);
+      margin-block-end: var(--space-xl);
+    }
+
+    .toc-mobile__summary {
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--text-body-sm);
+      font-weight: 600;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .toc-mobile__summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .toc-mobile__summary::after {
+      content: '▾';
+      float: inline-end;
+      color: var(--text-muted);
+    }
+
+    .toc-mobile[open] .toc-mobile__summary::after {
+      content: '▴';
+    }
+
+    .toc-mobile__list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3xs);
+      padding: 0 var(--space-md) var(--space-md);
+    }
+
+    .toc-mobile__list a {
+      display: grid;
+      grid-template-columns: 1.75rem 1fr;
+      gap: var(--space-2xs);
+      font-size: var(--text-caption);
+      color: var(--text-secondary);
+    }
+
+    .toc-mobile__n {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .doc__heading {
+      flex-direction: column;
+      gap: var(--space-3xs);
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Scroll-spy for the sticky index. The active link follows the section
+   * nearest the top of the reading area; the rootMargin keeps the header
+   * from counting as the section being read.
+   */
+  function trackReadingPosition(): void {
+    const links = document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]');
+    const sections = [...links]
+      .map((link) => document.getElementById(link.dataset.tocLink ?? ''))
+      .filter((section): section is HTMLElement => section !== null);
+
+    if (links.length === 0 || sections.length === 0) return;
+
+    const setActive = (id: string): void => {
+      for (const link of links) {
+        link.classList.toggle('is-active', link.dataset.tocLink === id);
+      }
+    };
+
+    const visible = new Set<string>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            visible.add(entry.target.id);
+          } else {
+            visible.delete(entry.target.id);
+          }
+        }
+
+        // First section in document order that is currently on screen.
+        const first = sections.find((section) => visible.has(section.id));
+        if (first) setActive(first.id);
+      },
+      { rootMargin: '-25% 0px -60% 0px', threshold: 0 },
+    );
+
+    for (const section of sections) observer.observe(section);
+    setActive(sections[0]!.id);
+  }
+
+  trackReadingPosition();
+</script>

@@ -1,0 +1,845 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import { SITE, repoFile } from '../lib/site';
+
+const steps = [
+  {
+    n: '01',
+    title: 'Haz un fork',
+    body: 'El repositorio es público y cualquiera puede trabajar sobre su propia copia. No hay permisos que pedir ni cuentas que crear.',
+    href: SITE.github,
+    linkLabel: 'Ver el repositorio',
+    external: true,
+  },
+  {
+    n: '02',
+    title: 'Crea la carpeta en la categoría correcta',
+    body: 'Una skill es una carpeta con su SKILL.md dentro. Elige la categoría donde aporta y créala en skills/<categoría>/<tu-skill>/. Si ninguna encaja, no la fuerces dentro de una: propón una categoría nueva.',
+    href: '/docs/categorias/specs/',
+    linkLabel: 'Ver las categorías',
+    external: false,
+  },
+  {
+    n: '03',
+    title: 'Completa el SKILL.md con su frontmatter',
+    body: 'El frontmatter es lo que el CLI y el sitio leen: nombre, descripción, categoría, versión, author, tags, compatibility y featured. El cuerpo es lo que tu agente va a seguir.',
+    href: '/docs/anatomia-de-una-skill/',
+    linkLabel: 'Anatomía de una skill',
+    external: false,
+  },
+  {
+    n: '04',
+    title: 'Valida localmente',
+    body: 'Antes de abrir el pull request, valida que la skill cumple el esquema. El comando recorre skills/**/SKILL.md y falla con el motivo exacto si algo no encaja.',
+    href: null,
+    linkLabel: null,
+    external: false,
+  },
+  {
+    n: '05',
+    title: 'Abre el pull request con la plantilla',
+    body: 'La plantilla pide el checklist de calidad de esta misma página. Rellenarla completa es la forma más rápida de que la primera revisión pase sin pedir cambios.',
+    href: repoFile('.github/PULL_REQUEST_TEMPLATE.md'),
+    linkLabel: 'Ver la plantilla de pull request',
+    external: true,
+  },
+  {
+    n: '06',
+    title: 'Revisión y merge',
+    body: 'Alguien del equipo revisa, comenta o pide cambios. Cuando hay una aprobación, se fusiona y tu skill aparece en el catálogo en el siguiente despliegue.',
+    href: null,
+    linkLabel: null,
+    external: false,
+  },
+];
+
+const checklist = [
+  {
+    title: 'Descripción clara de la tarea que resuelve',
+    body: 'Una o dos frases, en el frontmatter, diciendo qué hace la skill y no para qué sirve el proyecto entero. Es lo primero que se lee: si no se entiende, no se instala.',
+  },
+  {
+    title: 'Casos de uso concretos',
+    body: 'Cuándo activarla y cuándo no. Una skill con un alcance claro rinde más que una que intenta resolver de todo.',
+  },
+  {
+    title: 'Ejemplos que funcionan de verdad',
+    body: 'Ejecutables y copiables, sin marcadores pendientes ni rutas que solo existen en tu máquina. Un ejemplo roto enseña lo contrario de lo que debería.',
+  },
+  {
+    title: 'Sin secretos ni datos personales',
+    body: 'Ni tokens, ni claves, ni rutas privadas, ni nombres de clientes. Vale la pena revisar el diff antes de abrirlo.',
+  },
+  {
+    title: 'Licencia compatible',
+    body: 'Contenido original o de una licencia que permita la redistribución bajo MIT. Si copiaste material de terceros, decláralo.',
+  },
+  {
+    title: 'Probada con al menos un agente',
+    body: 'Al menos un agente de los declarados en compatibility, en una instalación real. Declare la lista de verdad, no la que te gustaría.',
+  },
+];
+
+const roles = [
+  {
+    title: 'Contribuyente',
+    body: 'Cualquiera. Propone skills, propone categorías, escribe documentación y reporta problemas.',
+    can: 'Abrir issues y pull requests desde un fork.',
+    cannot: 'No fusiona sus propios cambios: siempre alguien más los revisa.',
+  },
+  {
+    title: 'Revisor',
+    body: 'Alguien que ya ha aportado varias skills y conoce el criterio del proyecto.',
+    can: 'Revisa pull requests, comenta, aprueba o pide cambios.',
+    cannot: 'No fusiona ni cambia el criterio del proyecto por su cuenta.',
+  },
+  {
+    title: 'Mantenedor',
+    body: 'Responsable de que el catálogo siga siendo coherente y de que el proceso no dependa de una sola persona.',
+    can: 'Fusiona, decide cuando hay desacuerdo y mantiene el catálogo.',
+    cannot: 'No cambia el criterio en silencio: las decisiones que afectan a todo el catálogo se discuten en una issue.',
+  },
+];
+
+const resources = [
+  {
+    label: 'Guía de contribución',
+    body: 'El proceso completo, con más detalle que esta página.',
+    href: SITE.contributing,
+    external: true,
+  },
+  {
+    label: 'Código de conducta',
+    body: 'Cómo nos tratamos en issues, revisiones y discusiones.',
+    href: SITE.conduct,
+    external: true,
+  },
+  {
+    label: 'Gobernanza',
+    body: 'Los roles, cómo se decide y quién mantiene qué.',
+    href: SITE.governance,
+    external: true,
+  },
+  {
+    label: 'Reportar un problema',
+    body: 'Un error, una skill que no funciona o una duda.',
+    href: SITE.newIssue,
+    external: true,
+  },
+];
+---
+
+<Layout
+  title="Contribuir — fwskills"
+  description="Cómo contribuir una skill a fwskills: el flujo en 6 pasos, el checklist de calidad, la propuesta de una categoría nueva, la gobernanza y la política de seguridad."
+  ogImage="/og-default.svg"
+>
+  <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="container">
+      <Breadcrumbs items={[{ label: 'Inicio', href: '/' }, { label: 'Contribuir' }]} />
+      <div class="hero__inner">
+        <p class="section-eyebrow">Comunidad</p>
+        <h1 class="hero__title">Construyamos esto juntos</h1>
+        <p class="hero__lede">
+          El catálogo es un conjunto de carpetas en un repositorio abierto. Añadir una skill es
+          añadir una carpeta, escribir un <code>SKILL.md</code> y abrir un pull request. No hay
+          comité, ni registro, ni lista de acceso, ni nadie que tenga que aprobar que existas: la
+          única condición es que la skill sea útil y esté bien escrita.
+        </p>
+        <div class="hero__actions">
+          <a
+            class="btn btn-primary"
+            href={SITE.issues}
+            target="_blank"
+            rel="noopener noreferrer">Ver issues abiertos</a>
+          <a
+            class="btn btn-secondary"
+            href={SITE.contributing}
+            target="_blank"
+            rel="noopener noreferrer">Leer CONTRIBUTING</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Flujo en 6 pasos ─────────────────────────────────────────────── -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section__head">
+        <h2 class="section-heading">Flujo en 6 pasos</h2>
+        <a class="section__more" href="/docs/crear-una-skill/">Guía completa →</a>
+      </div>
+      <p class="section__intro">
+        De la primera línea a tu skill en el catálogo. Ninguno de los pasos necesita permisos
+        especiales.
+      </p>
+
+      <ol class="timeline">
+        {
+          steps.map((step) => (
+            <li class="timeline__item" data-reveal>
+              <span class="timeline__n" aria-hidden="true">
+                {step.n}
+              </span>
+              <div class="timeline__body">
+                <h3 class="timeline__title">{step.title}</h3>
+                <p class="timeline__text">{step.body}</p>
+                {step.href && step.linkLabel && (
+                  <a
+                    class="timeline__link"
+                    href={step.href}
+                    target={step.external ? '_blank' : undefined}
+                    rel={step.external ? 'noopener noreferrer' : undefined}
+                  >
+                    {step.linkLabel} →
+                  </a>
+                )}
+                {step.n === '04' && (
+                  <div class="timeline__code">
+                    <CodeBlock
+                      code="npm run validate"
+                      lang="bash"
+                      label="Validar las skills del repositorio"
+                    />
+                  </div>
+                )}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ── Checklist de calidad ─────────────────────────────────────────── -->
+  <section class="section">
+    <div class="container container--narrow">
+      <h2 class="section-heading">Checklist de calidad de una skill</h2>
+      <p class="section__intro">
+        Seis puntos que un revisor va a mirar sí o sí. Son texto de referencia, no un
+        formulario: la confirmación real es la revisión del pull request.
+      </p>
+
+      <ul class="checklist">
+        {
+          checklist.map((item) => (
+            <li class="checklist__item">
+              <span class="checklist__icon" aria-hidden="true">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              </span>
+              <div>
+                <p class="checklist__title">{item.title}</p>
+                <p class="checklist__text">{item.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="callout callout--note">
+        <span>
+          La plantilla del pull request repite estos seis puntos. Rellenarla es la forma más
+          rápida de que la primera revisión pase sin pedir cambios.
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Nueva categoría ──────────────────────────────────────────────── -->
+  <section class="section section--alt">
+    <div class="container container--narrow">
+      <h2 class="section-heading">Proponer una categoría nueva</h2>
+      <p class="section__intro">
+        Una categoría es una carpeta con un nombre y una descripción. Añadir contenido no
+        toca el sitio: el catálogo se construye leyendo las carpetas del repositorio.
+      </p>
+
+      <p>
+        Si tu skill no encaja en <code>specs</code>, <code>design</code>, <code>qa</code> ni{' '}
+        <code>security</code>, no la fuerces dentro de una de esas. Abre una issue explicando
+        el área y deja que se discuta antes de escribir código.
+      </p>
+      <p>El proceso son tres pasos:</p>
+      <ol class="list">
+        <li>
+          Abre una issue con{' '}
+          <a href={SITE.newIssue} target="_blank" rel="noopener noreferrer">la plantilla de issue</a>{' '}
+          describiendo qué resuelve el área y qué skills reutilizables aporta.
+        </li>
+        <li>Se acepta cuando el área tiene al menos tres skills reutilizables y una descripción clara de qué resuelve.</li>
+        <li>Se implementa creando la carpeta en <code>skills/</code> y añadiendo una entrada al mapa de categorías.</li>
+      </ol>
+
+      <p>
+        Ese mapa es <code>CATEGORY_META</code> en <code>src/lib/skills.ts</code>, y es la única
+        excepción a la regla de no tocar <code>frontend/</code>: una carpeta no puede
+        describirse sola, así que cada categoría necesita un nombre visible, una frase y un
+        icono. Añadir una clave es todo el coste de una categoría nueva.
+      </p>
+      <div class="callout callout--note">
+        <span>
+          Todo lo demás es contenido: añadir <code>skills/&lt;categoría&gt;/&lt;skill&gt;/</code>{' '}
+          con su <code>SKILL.md</code> es suficiente para que la categoría aparezca en el
+          catálogo, sin una sola línea de código modificada.
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Gobernanza ───────────────────────────────────────────────────── -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-heading">Gobernanza</h2>
+      <p class="section__intro">
+        Tres roles, sin jerarquía oculta entre ellos. Los roles se reconocen por lo que la
+        persona ha hecho, no por quién la nominate.
+      </p>
+
+      <div class="grid-3">
+        {
+          roles.map((role) => (
+            <article class="card role" data-reveal>
+              <h3 class="role__title">{role.title}</h3>
+              <p class="role__body">{role.body}</p>
+              <p class="role__line">
+                <span class="role__label">Puede</span>
+                {role.can}
+              </p>
+              <p class="role__line">
+                <span class="role__label">No puede</span>
+                {role.cannot}
+              </p>
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="governance">
+        <div>
+          <h3 class="governance__title">Cómo se decide</h3>
+          <p class="governance__text">
+            Todo cambio entra por pull request y necesita al menos una aprobación antes de
+            fusionarse. Las decisiones que afectan a todo el catálogo —una categoría nueva, un
+            cambio de criterio, una skill de la categoría <code>security</code>— se discuten en
+            una issue <em>antes</em> de escribir el pull request, para no gastar la revisión de
+            nadie con una decisión ya tomada.
+          </p>
+        </div>
+        <div>
+          <h3 class="governance__title">Cómo se acredita</h3>
+          <p class="governance__text">
+            Tu nombre va en el campo <code>author</code> del frontmatter, tu trabajo queda en
+            el historial del repositorio, y la lista de contribuyentes del sitio sale de ese
+            historial. No hay perfil que mantener ni créditos que reclamar.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Seguridad ────────────────────────────────────────────────────── -->
+  <section class="section section--alt">
+    <div class="container container--narrow">
+      <h2 class="section-heading">Seguridad</h2>
+      <p class="section__intro">
+        Un catálogo abierto significa que cualquiera puede proponer una skill. El control de
+        calidad es la revisión, y hay dos caminos que conviene conocer.
+      </p>
+
+      <h3 class="subheading">Reportar una skill maliciosa o vulnerable</h3>
+      <p>
+        Si una skill instalada hace algo que no debería —envía datos a un tercero, ejecuta un
+        script que no declara, copia rutas fuera del proyecto—, no abras un issue público.
+        Repórtalo por el canal privado de avisos de seguridad:
+      </p>
+      <p>
+        <a href={SITE.security} target="_blank" rel="noopener noreferrer">
+          Reportar un aviso de seguridad →
+        </a>
+      </p>
+      <p>
+        Incluye la referencia de la skill, qué hace y cómo se reproduce. Recibirás acuse de
+        recibo, la discusión ocurre en privado hasta que haya una corrección, y el aviso
+        aparece en las notas de la versión que lo corrige. La skill se retira del catálogo si
+        el problema es del contenido y no de una versión concreta.
+      </p>
+
+      <h3 class="subheading">Scripts ejecutables dentro de una skill</h3>
+      <p>
+        Una skill <em>puede</em> incluir una carpeta <code>scripts/</code>. Es una capacidad
+        legítima y hay casos de uso evidentes. La política tiene cuatro reglas, y no son
+        negociables:
+      </p>
+      <ol class="list">
+        <li>
+          <strong>Todo script se declara en el frontmatter.</strong> Un campo de declaración
+          lista los scripts ejecutables y su propósito. Un script sin declarar no se instala.
+        </li>
+        <li>
+          <strong>Todo script exige revisión obligatoria antes de fusionar.</strong> No es una
+          revisión más: es un punto de bloqueo. Quien lo revise tiene que leerlo.
+        </li>
+        <li>
+          <strong>Una skill de la categoría <code>security</code> no incluye scripts.</strong>
+          Una skill que audita no ejecuta nada por su cuenta.
+        </li>
+        <li>
+          <strong>El aviso es visible al instalar.</strong> <code>add</code> y <code>update</code>{' '}
+          muestran qué scripts se instalan, siempre, incluso con <code>--dry-run</code>.
+        </li>
+      </ol>
+      <div class="callout callout--warning">
+        <span>
+          <code>npx fwskills add</code> copia los scripts al disco: no los ejecuta. El punto de
+          control es el pull request, no la instalación. Por eso un script sin declarar en el
+          frontmatter es un defecto, no un detalle de estilo.
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Recursos ─────────────────────────────────────────────────────── -->
+  <section class="section">
+    <div class="container container--narrow">
+      <h2 class="section-heading">Recursos</h2>
+      <p class="section__intro">
+        Los cuatro documentos que conviene leer antes de abrir el primer pull request.
+      </p>
+
+      <ul class="grid-2 resources">
+        {
+          resources.map((resource) => (
+            <li>
+              <a
+                class="card card--interactive resource"
+                href={resource.href}
+                target={resource.external ? '_blank' : undefined}
+                rel={resource.external ? 'noopener noreferrer' : undefined}
+              >
+                <span class="resource__title">{resource.label}</span>
+                <span class="resource__body">{resource.body}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── Banda final ──────────────────────────────────────────────────── -->
+  <section class="cta">
+    <div class="container cta__inner">
+      <h2 class="cta__title">Tu primera skill empieza con un fork</h2>
+      <p class="cta__body">
+        El catálogo es lo que la comunidad aporta. Si falta la skill que necesitas, la forma
+        más rápida de tenerlo es escribirla tú.
+      </p>
+      <div class="cta__actions">
+        <a class="btn btn-primary" href={SITE.issues} target="_blank" rel="noopener noreferrer">
+          Abrir mi primer PR
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  /**
+   * Scroll reveal, once per element. The [data-reveal] base rule keeps content
+   * visible without JS, so this is purely additive.
+   */
+  const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    for (const el of targets) el.classList.add('is-visible');
+  } else if (targets.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      },
+      { rootMargin: '0px 0px -10% 0px', threshold: 0.05 },
+    );
+    for (const el of targets) observer.observe(el);
+  }
+</script>
+
+<style>
+  /* ── Hero ───────────────────────────────────────────────────────── */
+  .hero {
+    padding-block: var(--space-xl) var(--space-3xl);
+  }
+
+  .hero__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    text-align: center;
+    padding-block-start: var(--space-2xl);
+  }
+
+  .hero__title {
+    font-size: var(--text-display);
+    line-height: 1.1;
+    max-width: 18ch;
+  }
+
+  .hero__lede {
+    max-width: 60ch;
+    color: var(--text-secondary);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2xs);
+  }
+
+  /* ── Section headings ───────────────────────────────────────────── */
+  .section__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-block-end: var(--space-lg);
+  }
+
+  .section__head .section-heading {
+    margin-block-end: 0;
+  }
+
+  .section__more {
+    font-size: var(--text-body-sm);
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .section__intro {
+    max-width: 62ch;
+    color: var(--text-secondary);
+    margin-block-end: var(--space-xl);
+  }
+
+  .container--narrow {
+    max-width: 820px;
+  }
+
+  .subheading {
+    font-size: var(--text-h4);
+    margin-block: var(--space-lg) var(--space-2xs);
+  }
+
+  .subheading:first-of-type {
+    margin-block-start: 0;
+  }
+
+  /* ── Prose lists ────────────────────────────────────────────────── */
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    counter-reset: item;
+  }
+
+  .list li {
+    position: relative;
+    padding-inline-start: var(--space-md);
+    color: var(--text-secondary);
+  }
+
+  .list li::before {
+    content: counter(item);
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.15em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: var(--radius-pill);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+
+  /* Only direct children, so nested titles keep their own colour. */
+  .container--narrow > p,
+  .container--narrow > ol > li {
+    color: var(--text-secondary);
+  }
+
+  /* ── Vertical timeline ──────────────────────────────────────────── */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .timeline__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: var(--space-sm);
+  }
+
+  /* The connector lives on the item so the last segment stops on its own. */
+  .timeline__item::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: calc(1.75rem - 0.5px);
+    width: 1px;
+    background: var(--border);
+  }
+
+  .timeline__item:first-child::before {
+    inset-block-start: 1.75rem;
+  }
+
+  .timeline__item:last-child::before {
+    inset-block-end: 1.75rem;
+  }
+
+  .timeline__n {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--radius-pill);
+    /* Opaque so the connector never crosses the number. */
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    font-family: var(--font-mono);
+    font-size: var(--text-h4);
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .timeline__title {
+    font-size: var(--text-h4);
+    margin-block-end: var(--space-3xs);
+  }
+
+  .timeline__text {
+    color: var(--text-secondary);
+    max-width: 60ch;
+  }
+
+  .timeline__link {
+    display: inline-block;
+    margin-block-start: var(--space-2xs);
+    font-size: var(--text-body-sm);
+    font-weight: 600;
+  }
+
+  .timeline__code {
+    margin-block-start: var(--space-sm);
+  }
+
+  /* ── Checklist ──────────────────────────────────────────────────── */
+  .checklist {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-block-end: var(--space-lg);
+  }
+
+  .checklist__item {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    gap: var(--space-sm);
+    align-items: start;
+  }
+
+  .checklist__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-block-start: 0.1em;
+    border-radius: var(--radius-pill);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .checklist__title {
+    font-weight: 600;
+  }
+
+  .checklist__text {
+    color: var(--text-secondary);
+    font-size: var(--text-body-sm);
+    margin-block-start: var(--space-3xs);
+  }
+
+  /* ── Role cards ─────────────────────────────────────────────────── */
+  .role {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .role__title {
+    font-size: var(--text-h4);
+  }
+
+  .role__body {
+    font-size: var(--text-body-sm);
+    color: var(--text-secondary);
+    flex: 1;
+  }
+
+  .role__line {
+    font-size: var(--text-caption);
+    color: var(--text-secondary);
+    padding-block-start: var(--space-2xs);
+    border-block-start: 1px solid var(--border);
+  }
+
+  .role__label {
+    display: block;
+    font-size: var(--text-caption);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+  }
+
+  .governance {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+    margin-block-start: var(--space-2xl);
+    padding-block-start: var(--space-xl);
+    border-block-start: 1px solid var(--border);
+  }
+
+  .governance__title {
+    font-size: var(--text-h4);
+    margin-block-end: var(--space-2xs);
+  }
+
+  .governance__text {
+    color: var(--text-secondary);
+    font-size: var(--text-body-sm);
+  }
+
+  /* ── Resources ──────────────────────────────────────────────────── */
+  .resources li {
+    display: flex;
+  }
+
+  .resource {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    width: 100%;
+  }
+
+  .resource__title {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .resource__body {
+    font-size: var(--text-body-sm);
+    color: var(--text-secondary);
+  }
+
+  /* ── Final band ─────────────────────────────────────────────────── */
+  .cta {
+    background: var(--accent-soft);
+    border-block: 1px solid var(--accent-border);
+    padding-block: var(--space-4xl);
+  }
+
+  .cta__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    text-align: center;
+  }
+
+  .cta__title {
+    font-size: var(--text-h2);
+    color: var(--accent);
+  }
+
+  .cta__body {
+    color: var(--text-secondary);
+    max-width: 52ch;
+  }
+
+  .cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-2xs);
+  }
+
+  /* ── Responsive ─────────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .hero__inner {
+      padding-block-start: var(--space-lg);
+    }
+
+    .timeline {
+      gap: var(--space-lg);
+    }
+
+    .timeline__item {
+      grid-template-columns: 2.75rem minmax(0, 1fr);
+    }
+
+    .timeline__item::before {
+      inset-inline-start: calc(1.375rem - 0.5px);
+    }
+
+    .timeline__item:first-child::before {
+      inset-block-start: 1.375rem;
+    }
+
+    .timeline__item:last-child::before {
+      inset-block-end: 1.375rem;
+    }
+
+    .timeline__n {
+      width: 2.75rem;
+      height: 2.75rem;
+      font-size: var(--text-body);
+    }
+
+    .governance {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
