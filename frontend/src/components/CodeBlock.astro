@@ -40,44 +40,7 @@ const highlighted = await highlightInline(code, lang);
   <pre class="code__pre"><code set:html={highlighted} /></pre>
 </div>
 
-<script>
-  // One delegated listener for every copy button on the page.
-  const COPY_MS = 2000;
-
-  document.addEventListener('click', async (event) => {
-    const button = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>('[data-copy]');
-    if (!button) return;
-
-    const value = button.dataset.codeValue ?? '';
-    const text = button.querySelector<HTMLElement>('[data-copy-text]');
-
-    try {
-      await navigator.clipboard.writeText(value);
-    } catch {
-      // Clipboard API needs a secure context; fall back to a selection copy.
-      const area = document.createElement('textarea');
-      area.value = value;
-      area.style.position = 'fixed';
-      area.style.opacity = '0';
-      document.body.append(area);
-      area.select();
-      document.execCommand('copy');
-      area.remove();
-    }
-
-    if (!text) return;
-    const previous = text.textContent;
-    text.textContent = '¡Copiado!';
-    button.classList.add('is-copied');
-    button.setAttribute('aria-label', 'Copiado al portapapeles');
-
-    window.setTimeout(() => {
-      text.textContent = previous;
-      button.classList.remove('is-copied');
-      button.setAttribute('aria-label', `${button.dataset.copyLabel ?? 'Comando'}: copiar`);
-    }, COPY_MS);
-  });
-</script>
+<!-- El comportamiento vive en src/scripts/copy.ts -->
 
 <style>
   .code {

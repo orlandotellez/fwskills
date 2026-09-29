@@ -16,21 +16,34 @@ const [categories, featured, skills, github] = await Promise.all([
 
 const totalTags = new Set(skills.flatMap((s) => s.data.tags)).size;
 
+/**
+ * The three steps double as the landing's quick access (spec 02 T14).
+ *
+ * Each `href` is a real route, so no internal link can 404 — which is the
+ * whole point of replacing the old `#caracteristicas` / `#skills` /
+ * `#como-funciona` anchors with the shared header navigation.
+ */
 const steps = [
   {
     n: '01',
     title: 'Elige',
     body: 'Explora el catálogo por categoría, busca por nombre o filtra por tags hasta dar con la skill que falta.',
+    href: '/skills',
+    cta: 'Ver el catálogo',
   },
   {
     n: '02',
     title: 'Instala',
     body: 'Un comando. El CLI resuelve la categoría, descarga la skill y la deja en la carpeta del agente que ya tenés.',
+    href: '/instalacion',
+    cta: 'Ver la instalación',
   },
   {
     n: '03',
     title: 'Usa',
     body: 'Tu agente detecta la skill en su carpeta y la aplica. Sin configuración, sin registro, sin cuenta.',
+    href: '/docs/introduccion/',
+    cta: 'Leer la documentación',
   },
 ];
 
@@ -163,6 +176,10 @@ const faq = [
               </span>
               <h3 class="steps__title">{step.title}</h3>
               <p class="steps__body">{step.body}</p>
+              <a class="steps__link" href={step.href}>
+                {step.cta}
+                <span class="steps__arrow" aria-hidden="true">→</span>
+              </a>
             </li>
           ))
         }
@@ -289,31 +306,6 @@ const faq = [
   </section>
 </Layout>
 
-<script>
-  /**
-   * Scroll reveal, once per element.
-   *
-   * With JS off, the [data-reveal] base rule in utilities.css keeps content
-   * visible, so this is purely additive.
-   */
-  const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
-
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    for (const el of targets) el.classList.add('is-visible');
-  } else if (targets.length > 0) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
-      },
-      { rootMargin: '0px 0px -10% 0px', threshold: 0.05 },
-    );
-    for (const el of targets) observer.observe(el);
-  }
-</script>
 
 <style>
 
@@ -446,6 +438,31 @@ const faq = [
   .steps__body {
     font-size: var(--text-body-sm);
     color: var(--text-secondary);
+  }
+
+  .steps__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-2xs);
+    font-size: var(--text-body-sm);
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  /* The arrow shifts on hover; the underline is the focus affordance. */
+  .steps__arrow {
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .steps__link:hover .steps__arrow {
+    transform: translateX(4px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .steps__arrow {
+      transition: none;
+    }
   }
 
   /* ── Flow ───────────────────────────────────────────────────────── */

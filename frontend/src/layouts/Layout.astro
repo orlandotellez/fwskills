@@ -82,6 +82,18 @@ const ogImageUrl = siteUrl ? new URL(ogImage, siteUrl).href : ogImage;
       <slot />
     </main>
     <Footer />
+
+    <!--
+      Single entry point for every client behaviour (spec 02 T2). It is a
+      module script in the body, not a bundled island, so the site ships no
+      framework runtime. `init()` is idempotent, which matters because Astro
+      re-evaluates this module after a client-side navigation: a delegated
+      listener registered twice would fire twice.
+    -->
+    <script>
+      import { init } from '../scripts/index';
+      init();
+    </script>
   </body>
 </html>
 

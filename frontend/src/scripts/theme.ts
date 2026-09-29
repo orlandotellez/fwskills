@@ -64,7 +64,7 @@ export function syncToggleState(theme: Theme = currentTheme()): void {
   }
 }
 
-function init(): void {
+export function init(): void {
   syncToggleState();
 
   for (const el of document.querySelectorAll<HTMLElement>('[data-theme-toggle]')) {
@@ -77,8 +77,4 @@ function init(): void {
   media.addEventListener('change', () => {
     if (readStored() === null) syncToggleState();
   });
-}
-
-if (typeof document !== 'undefined') {
-  init();
 }

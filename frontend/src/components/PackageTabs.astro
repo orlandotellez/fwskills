@@ -56,76 +56,7 @@ const groupId = `pmtabs-${Math.random().toString(36).slice(2, 8)}`;
   }
 </div>
 
-<script>
-  const KEY = 'fwskills:pm';
-
-  function read(): string | null {
-    try {
-      return localStorage.getItem(KEY);
-    } catch {
-      return null;
-    }
-  }
-
-  function write(id: string): void {
-    try {
-      localStorage.setItem(KEY, id);
-    } catch {
-      // Storage blocked: the selection still applies for this page view.
-    }
-  }
-
-  function select(group: HTMLElement, id: string): void {
-    for (const tab of group.querySelectorAll<HTMLButtonElement>('[data-pm-id]')) {
-      const active = tab.dataset.pmId === id;
-      tab.setAttribute('aria-selected', String(active));
-      tab.tabIndex = active ? 0 : -1;
-    }
-    for (const panel of group.querySelectorAll<HTMLElement>('[data-pm-panel]')) {
-      panel.hidden = panel.dataset.pmPanel !== id;
-    }
-  }
-
-  function selectEverywhere(id: string): void {
-    for (const group of document.querySelectorAll<HTMLElement>('[data-pmtabs]')) {
-      select(group, id);
-    }
-  }
-
-  // Stored value wins on load; otherwise the server-rendered first tab stands.
-  const stored = read();
-  if (stored) selectEverywhere(stored);
-
-  document.addEventListener('click', (event) => {
-    const tab = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>('[data-pm-id]');
-    if (!tab?.dataset.pmId) return;
-    write(tab.dataset.pmId);
-    selectEverywhere(tab.dataset.pmId);
-  });
-
-  // Arrow-key navigation within a tablist, per the WAI-ARIA pattern.
-  document.addEventListener('keydown', (event) => {
-    const tab = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>('[data-pm-id]');
-    if (!tab || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-
-    const tabs = [...tab.closest('[role="tablist"]')!.querySelectorAll<HTMLButtonElement>('[data-pm-id]')];
-    const current = tabs.indexOf(tab);
-    let next = current;
-
-    if (event.key === 'ArrowLeft') next = (current - 1 + tabs.length) % tabs.length;
-    if (event.key === 'ArrowRight') next = (current + 1) % tabs.length;
-    if (event.key === 'Home') next = 0;
-    if (event.key === 'End') next = tabs.length - 1;
-
-    event.preventDefault();
-    const target = tabs[next]!;
-    if (target.dataset.pmId) {
-      write(target.dataset.pmId);
-      selectEverywhere(target.dataset.pmId);
-      target.focus();
-    }
-  });
-</script>
+<!-- El comportamiento vive en src/scripts/package-tabs.ts -->
 
 <style>
   .pmtabs__list {

@@ -1,27 +1,46 @@
 /**
  * Header behaviour: scroll state and the mobile menu.
  *
- * The mobile panel traps focus, blocks body scroll, and closes on ✕, outside
- * click and Escape. Restoring focus to the trigger on close is the part that
- * is usually missing, and it is the part keyboard users notice.
+ * The mobile panel traps focus, blocks body scroll, and closes on ✕,
+ * outside click and Escape. Restoring focus to the trigger on close is
+ * the part that is usually missing, and it is the part keyboard users
+ * notice: without it, closing the menu drops focus to <body> and the next
+ * Tab starts from the top of the document.
  */
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+let registered = false;
+let teardown: Array<() => void> = [];
+
+/**
+ * addEventListener that records how to undo itself.
+ *
+ * Every listener this module attaches is registered through here, so
+ * __resetHeader can detach all of them. A listener that cannot be removed
+ * cannot be tested in isolation, and the browser does not care: it keeps
+ * firing on whatever document happens to be current.
+ */
+function on(target: EventTarget, type: string, handler: EventListener, opts?: AddEventListenerOptions): void {
+  target.addEventListener(type, handler, opts);
+  teardown.push(() => target.removeEventListener(type, handler, opts));
+}
+
 function initScrollState(): void {
   const header = document.querySelector<HTMLElement>('[data-site-header]');
   if (!header) return;
 
-  // The spec threshold is 40px. A passive listener plus rAF is enough; no
-  // scroll library earns its weight for a single boolean.
+  // The threshold is 40px. A passive listener plus rAF is enough; no scroll
+  // library earns its weight for a single boolean.
   let ticking = false;
   const update = () => {
     header.toggleAttribute('data-scrolled', window.scrollY > 40);
     ticking = false;
   };
 
-  window.addEventListener(
+  on(
+    window,
     'scroll',
     () => {
       if (ticking) return;
@@ -47,8 +66,7 @@ function initMobileMenu(): void {
     toggle.setAttribute('aria-label', 'Cerrar menú');
     document.body.style.overflow = 'hidden';
 
-    const first = panel.querySelector<HTMLElement>(FOCUSABLE);
-    first?.focus();
+    panel.querySelector<HTMLElement>(FOCUSABLE)?.focus();
   };
 
   const close = () => {
@@ -61,9 +79,9 @@ function initMobileMenu(): void {
 
   const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
 
-  toggle.addEventListener('click', () => (isOpen() ? close() : open()));
+  on(toggle, 'click', () => (isOpen() ? close() : open()));
 
-  document.addEventListener('keydown', (event) => {
+  on(document, 'keydown', ((event: KeyboardEvent) => {
     if (!isOpen()) return;
 
     if (event.key === 'Escape') {
@@ -88,21 +106,33 @@ function initMobileMenu(): void {
         first.focus();
       }
     }
-  });
+  }) as EventListener);
 
   // Outside click. The panel is full screen, so this means "click the
   // backdrop area", and the toggle itself is handled by its own listener.
-  panel.addEventListener('click', (event) => {
+  on(panel, 'click', (event: Event) => {
     if (event.target === panel) close();
   });
 
   // A resize past the breakpoint should not leave the panel stuck open.
-  window.matchMedia('(min-width: 769px)').addEventListener('change', (event) => {
+  const desktop = window.matchMedia('(min-width: 769px)');
+  on(desktop, 'change', ((event: MediaQueryListEvent) => {
     if (event.matches && isOpen()) close();
-  });
+  }) as EventListener);
 }
 
 export function initHeader(): void {
+  if (registered) return;
+  if (!document.querySelector('[data-site-header]')) return;
+  registered = true;
   initScrollState();
   initMobileMenu();
 }
+
+export function __resetHeader(): void {
+  for (const undo of teardown) undo();
+  teardown = [];
+  registered = false;
+}
+
+export { FOCUSABLE };
